@@ -1,4 +1,32 @@
-.App {
-  font-family: sans-serif;
-  text-align: center;
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui;
+}
+
+.wrapper {
+  position: relative;
+  height: 400px;
+  width: 100%;
+}
+
+nav {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  background: #eee;
+  padding: 0 20px;
+}
+
+.recharts-line, .recharts-legend-item  {
+  cursor: pointer;
+}
+
+button {
+  cursor: pointer;
 }
