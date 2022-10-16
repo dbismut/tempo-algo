@@ -19,9 +19,13 @@ import { PlayButton } from './PlayButton'
 export default function App() {
 	const { loading, results, songs } = useFetchData()
 
-	const songKeys = Object.keys(results)
+	const songKeys = useMemo(
+		() => Object.keys(results).sort((a, b) => (results[a].length > results[b].length ? -1 : 1)),
+		[results]
+	)
 
 	const [songIndex, setSongIndex] = useState(0)
+
 	const songName = songKeys[songIndex]
 
 	const [selectedDataKey, setSelectedDataKey] = useState<string | null>(null)

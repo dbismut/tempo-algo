@@ -13,7 +13,7 @@ const base = Airtable.base(process.env.REACT_APP_AIRTABLE_BASE!)
 
 const airtableData: Table<RawData> = base('Data')
 
-const URL = 'https://api.jsonbin.io/v3/b/5d2ca8a8c916727b6df1dae3/latest'
+const URL = `https://api.jsonbin.io/v3/b/${process.env.REACT_APP_JSONBIN}/latest`
 
 async function fetchSongs(): Promise<Record<string, Song>> {
 	const data: { record: Song[] } = await fetch(URL).then((r) => r.json())
