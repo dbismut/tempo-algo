@@ -79,7 +79,7 @@ export default function App() {
 			<div className="wrapper">
 				<LineChart
 					width={window.innerWidth}
-					height={(window.innerWidth * 2) / 3}
+					height={window.innerHeight * 0.6}
 					data={data}
 					margin={{
 						top: 5,
