@@ -42,6 +42,7 @@ export function usePlaySong(songs: Record<string, Song>, songData: SongData) {
 		const index = currNoteIdxRef.current
 		if (index >= positions.length - 1) {
 			currNoteIdxRef.current = -1
+			setNoteIdx(-1)
 			return
 		}
 		const interval = positions[index + 2]
