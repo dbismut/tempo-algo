@@ -29,4 +29,5 @@ export type Song = {
 	interval: number
 	reverb: number
 	positions: number[]
+	durations: number[]
 }

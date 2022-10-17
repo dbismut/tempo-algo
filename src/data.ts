@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Airtable, { Records, Table } from 'airtable'
-import { groupBy } from 'lodash-es'
+import { groupBy, sum } from 'lodash-es'
 import { RawData, Song, SongData } from './types'
 import { transformSongData } from './utils'
 
@@ -51,8 +51,32 @@ export const useFetchData = () => {
 	})
 
 	useEffect(() => {
-		Promise.all([fetchAirtable(), fetchSongs()]).then((values) => {
-			setState({ loading: false, results: values[0], songs: values[1] })
+		Promise.all([fetchAirtable(), fetchSongs()]).then(([results, songs]) => {
+			// add solutions to results
+			for (let k in results) {
+				if (k in songs) {
+					const song = songs[k]
+					if (!song.positions || !song.durations) continue
+					const duration = sum(song.positions)
+					const positionsRelative = song.positions.map((d) => d / duration)
+					results[k].push({
+						id: '-1',
+						key: '__SOLUTION',
+						song: k,
+						user: 'Solution',
+						duration,
+						positions: song.positions,
+						positionsRelative,
+						positionsCumulative: positionsRelative.reduce(
+							(acc, v, i) => (i === 0 ? [...acc, v] : [...acc, v + acc[i - 1]]),
+							[] as number[]
+						),
+						pressed: song.durations,
+						pressedRelative: song.durations.map((d) => d / duration),
+					})
+				}
+			}
+			setState({ loading: false, results, songs })
 		})
 	}, [])
 	return state

@@ -8,6 +8,8 @@ import {
 	CartesianGrid,
 	// Tooltip,
 	Legend,
+	AreaChart,
+	Area,
 } from 'recharts'
 
 import './data'
@@ -29,9 +31,9 @@ export default function App() {
 	const songName = songKeys[songIndex]
 
 	const [selectedDataKey, setSelectedDataKey] = useState<string | null>(null)
-	const [perfKey, setPerfKey] = useState<'positions' | 'positionsRelative' | 'positionsCumulative'>(
-		'positions'
-	)
+	const [perfKey, setPerfKey] = useState<
+		'positions' | 'positionsRelative' | 'positionsCumulative' | 'pressed'
+	>('positions')
 
 	const { data, series, solutionKey } = useMemo(() => {
 		if (loading) return { data: [], series: [] }
@@ -39,7 +41,7 @@ export default function App() {
 		const _series: string[] = []
 		let _solutionKey: string
 		results[songName].forEach((attempt) => {
-			if (attempt.user !== 'solution') _series.push(attempt.key)
+			if (attempt.key !== '__SOLUTION') _series.push(attempt.key)
 			else _solutionKey = attempt.key
 			attempt[perfKey].forEach((k, i) => {
 				_data[i] = Object.assign({}, _data[i], { [attempt.key]: k })
@@ -73,6 +75,7 @@ export default function App() {
 					<option value="positions">Positions (absolute)</option>
 					<option value="positionsRelative">Positions (relative)</option>
 					<option value="positionsCumulative">Positions (relative, cumulative)</option>
+					<option value="pressed">Pressed</option>
 				</select>
 				<PlayButton selectedDataSet={selectedDataSet} songs={songs} />
 			</nav>
@@ -103,13 +106,22 @@ export default function App() {
 							opacity={!selectedDataKey ? 1 : n === selectedDataKey ? 1 : 0.2}
 							stroke={n.includes('bad') ? '#9c82ca' : '#82ca9d'}
 							strokeDasharray={n.includes('bad') ? 4 : undefined}
-							strokeWidth={n.includes('bad') ? 2 : 1}
+							strokeWidth={n.includes('bad') || n === selectedDataKey ? 2 : 1}
 						/>
 					))}
 					{solutionKey && (
 						<Line type="monotone" dot={false} dataKey={solutionKey} stroke="#F00" strokeWidth={2} />
 					)}
 				</LineChart>
+				{/* {solutionKey && selectedDataKey && (
+					<AreaChart data={data} width={400} height={300}>
+						<CartesianGrid strokeDasharray="3 3" />
+						<XAxis />
+						<YAxis />
+						<Area stackId="pv" dataKey={solutionKey} stroke="#F00" fill="transparent" />
+						<Area stackId="pv" dataKey={selectedDataKey} stroke="#82ca9d" fill="#82ca9d" />
+					</AreaChart>
+				)} */}
 			</div>
 		</>
 	)
