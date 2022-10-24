@@ -111,7 +111,7 @@ export default function App() {
 
 	return (
 		<>
-			<Leva titleBar={false} />
+			<Leva titleBar={{ filter: false }} />
 			<nav>
 				<select
 					onChange={(v) => {
