@@ -21,6 +21,7 @@ export type SongData = {
 	positionsCumulative: number[]
 	duration: number
 	rate: number
+	score?: number
 }
 
 export type SolutionSongData = {

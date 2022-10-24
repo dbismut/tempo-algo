@@ -1,17 +1,17 @@
 {
-  "include": ["./src/**/*"],
-  "compilerOptions": {
-    "strict": true,
-    "esModuleInterop": true,
-    "target": "ESNext",
-    "module": "ESNext",
-    "noEmit": true,
-    "noEmitOnError": true,
-    "moduleResolution": "node",
-    "skipLibCheck": true,
-    "allowJs": true,
-    "lib": ["dom", "es2015"],
-    "jsx": "preserve",
-    "incremental": true
-  }
+	"include": ["./src/**/*"],
+	"compilerOptions": {
+		"strict": true,
+		"esModuleInterop": true,
+		"target": "ESNext",
+		"module": "ESNext",
+		"noEmit": true,
+		"noEmitOnError": true,
+		"moduleResolution": "node",
+		"skipLibCheck": true,
+		"allowJs": true,
+		"lib": ["dom", "es2015"],
+		"jsx": "preserve",
+		"incremental": true
+	}
 }

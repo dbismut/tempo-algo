@@ -1,10 +1,11 @@
 import { button, useControls } from 'leva'
+import { useEffect } from 'react'
 import { useSetSongRate } from './data'
-import { SolutionSongData, SongData } from './types'
+import { SongData } from './types'
 import { usePlaySong } from './usePlaySong'
 
 type Props = {
-	selectedDataSet: SongData
+	dataSet: SongData
 }
 
 export const COLOR_RATES = [
@@ -20,30 +21,35 @@ export const COLOR_RATES = [
 	'#00b300FF',
 ]
 
-export const SongUI = ({ selectedDataSet }: Props) => {
-	const { playSong, playing } = usePlaySong(selectedDataSet!)
-	const [{ loading }, setSongRate] = useSetSongRate(selectedDataSet.id)
+export const SongUI = ({ dataSet }: Props) => {
+	const { playSong, playing } = usePlaySong(dataSet!)
+	const [{ loading }, setSongRate] = useSetSongRate(dataSet.id)
 
-	useControls(
-		selectedDataSet.key,
-		{
+	const [, set] = useControls(
+		dataSet.key,
+		() => ({
 			[`${playing ? 'Pause' : 'Play'} song`]: button(() => playSong(), {
-				disabled: !selectedDataSet,
+				disabled: !dataSet,
 			}),
 			rate: {
-				value: selectedDataSet.rate || 0,
+				value: dataSet.rate || 0,
 				min: 0,
 				max: 10,
 				step: 0.5,
 				hint: '0 is not rated',
 				disabled: loading,
 				order: 1,
-				render: () => selectedDataSet.key !== '__SOLUTION',
+				render: () => dataSet.key !== '__SOLUTION',
 				onEditEnd: (v) => setSongRate(v),
 			},
-		},
-		[selectedDataSet, playing, loading]
+			score: { value: dataSet.score!, disabled: true, order: 2 },
+		}),
+		[dataSet, playing, loading]
 	)
+
+	useEffect(() => {
+		set({ score: dataSet.score })
+	}, [set, dataSet.score])
 
 	return null
 }

@@ -10,20 +10,31 @@ import {
 	Legend,
 	AreaChart,
 	Area,
+	CartesianAxis,
 } from 'recharts'
+import { groupBy, keyBy } from 'lodash-es'
+import { button, Leva, useControls } from 'leva'
 
 import './data'
 import { fetchData } from './data'
 
-import './styles.css'
 import { COLOR_RATES, SongUI } from './SongUI'
 import { useStore } from './store'
-import { groupBy } from 'lodash-es'
-import { button, useControls } from 'leva'
+import { SongData } from './types'
+import { CurveType } from 'recharts/types/shape/Curve'
+import * as algos from './algos'
 
 export default function App() {
-	const { loading, results, songs } = useStore()
-	const groupedResults = useMemo(() => groupBy(results, 'song'), [results])
+	const { loading, results } = useStore()
+	const groupedResults = useMemo(() => {
+		const _g = groupBy(results, 'song')
+		const _groupedResults = {} as _.Dictionary<_.Dictionary<SongData>>
+		for (const key in _g) {
+			_groupedResults[key] = keyBy(_g[key], 'key')
+		}
+
+		return _groupedResults
+	}, [results])
 
 	useEffect(() => {
 		fetchData()
@@ -31,8 +42,8 @@ export default function App() {
 
 	const songKeys = useMemo(
 		() =>
-			Object.keys(groupedResults).sort((a, b) =>
-				groupedResults[a].length > groupedResults[b].length ? -1 : 1
+			Object.keys(groupedResults).sort(
+				(a, b) => Object.keys(groupedResults[b]).length - Object.keys(groupedResults[a]).length
 			),
 		[groupedResults]
 	)
@@ -41,15 +52,18 @@ export default function App() {
 
 	const songName = songKeys[songIndex]
 
-	const [selectedDataKey, setSelectedDataKey] = useState<string | null>(null)
+	const [selectedDataKey, setSelectedDataKey] = useState<
+		keyof _.Dictionary<SongData>[typeof songName] | null
+	>(null)
 
 	const selectedDataSet = useMemo(
-		() => (songName ? groupedResults[songName].find((k) => k.key === selectedDataKey) : undefined),
+		() => (songName && selectedDataKey ? groupedResults[songName][selectedDataKey] : null),
 		[groupedResults, selectedDataKey, songName]
 	)
 
-	const { visualize } = useControls(
+	const { visualize, curve, algo, filter } = useControls(
 		{
+			curve: { options: ['monotone', 'linear', 'step'] },
 			visualize: {
 				options: {
 					positions: 'positions',
@@ -58,36 +72,51 @@ export default function App() {
 					pressed: 'pressed',
 				},
 			},
-			'Unselect song': button(() => setSelectedDataKey(null), { disabled: !selectedDataKey }),
+			filter: { options: ['all', 'correct', 'incorrect', 'not rated'] },
+			algo: { options: algos },
+			'unselect song': button(() => setSelectedDataKey(null), { disabled: !selectedDataKey }),
 		},
 		[selectedDataKey]
 	)
 
-	const { data, series, solutionKey } = useMemo(() => {
+	const { data, series } = useMemo(() => {
 		if (loading) return { data: [], series: [] }
 		const _data: Record<string, number>[] = []
 		const _series: string[] = []
-		let _solutionKey: string
-		groupedResults[songName].forEach((attempt) => {
-			if (attempt.key !== '__SOLUTION') _series.push(attempt.key)
-			else _solutionKey = attempt.key
+		const solutionData = groupedResults[songName]['__SOLUTION']
+
+		for (const key in groupedResults[songName]) {
+			const attempt = groupedResults[songName][key]
+			switch (filter) {
+				case 'correct':
+					if (!attempt.rate || attempt.rate < 5) continue
+					break
+				case 'incorrect':
+					if (!attempt.rate || attempt.rate >= 5) continue
+					break
+				case 'not rated':
+					if (attempt.rate !== undefined) continue
+			}
+			if (key !== '__SOLUTION') _series.push(key)
+			attempt.score = algo(solutionData, attempt, visualize)
 			// @ts-ignore
 			attempt[visualize].forEach((k, i) => {
 				_data[i] = Object.assign({}, _data[i], { [attempt.key]: k })
 			})
-		})
-		return { data: _data, series: _series, solutionKey: _solutionKey! }
-	}, [loading, groupedResults, songName, visualize])
+		}
+		return { data: _data, series: _series }
+	}, [loading, groupedResults, songName, visualize, filter, algo])
 
 	if (loading) return <>Loading…</>
 
 	return (
 		<>
+			<Leva titleBar={false} />
 			<nav>
 				<select
 					onChange={(v) => {
 						setSongIndex(~~v.target.value)
-						setSelectedDataKey('')
+						setSelectedDataKey(null)
 					}}
 				>
 					{songKeys.map((s, i) => (
@@ -96,8 +125,7 @@ export default function App() {
 						</option>
 					))}
 				</select>
-
-				{selectedDataSet && <SongUI selectedDataSet={selectedDataSet} />}
+				{selectedDataSet && <SongUI dataSet={selectedDataSet} />}
 			</nav>
 			<div className="wrapper">
 				<LineChart
@@ -111,21 +139,22 @@ export default function App() {
 						bottom: 5,
 					}}
 				>
+					<CartesianAxis />
 					<CartesianGrid strokeDasharray="3 3" />
 					<XAxis />
 					<YAxis />
 					{/* <Tooltip /> */}
 					<Legend
 						onClick={({ dataKey }) => setSelectedDataKey(dataKey)}
-						formatter={(value, entry, i) => {
+						formatter={(value, entry) => {
 							const { color } = entry
-							const songData = groupedResults[songName][i]
+							const songData = groupedResults[songName][value]
 
 							return (
 								<span
 									style={{
 										color,
-										opacity: !selectedDataKey ? 1 : value === selectedDataKey ? 1 : 0.6,
+										opacity: !selectedDataKey ? 1 : value === selectedDataKey ? 1 : 0.2,
 									}}
 								>
 									{value}
@@ -143,16 +172,16 @@ export default function App() {
 							)
 						}}
 					/>
-					{series.map((n, i) => {
-						const songData = groupedResults[songName][i]
+					{series.map((n) => {
+						const songData = groupedResults[songName][n]
 						return (
 							<Line
 								key={n}
 								dot={false}
-								type="monotone"
-								onClick={() => setSelectedDataKey(n)}
+								type={curve as CurveType}
+								onClick={() => setSelectedDataKey(n as any)}
 								dataKey={n}
-								opacity={!selectedDataKey ? 1 : n === selectedDataKey ? 1 : 0.2}
+								opacity={!selectedDataKey ? 0.9 : n === selectedDataKey ? 1 : 0.2}
 								stroke={
 									songData.rate === undefined
 										? '#d2d2d2'
@@ -162,15 +191,14 @@ export default function App() {
 							/>
 						)
 					})}
-					{solutionKey && (
-						<Line
-							type="monotone"
-							dot={false}
-							dataKey={solutionKey}
-							stroke="#008330"
-							strokeWidth={2}
-						/>
-					)}
+					<Line
+						type={curve as CurveType}
+						dot={false}
+						dataKey={'__SOLUTION'}
+						stroke="#008330"
+						opacity={0.8}
+						strokeWidth={2}
+					/>
 				</LineChart>
 				{/* {solutionKey && selectedDataKey && (
 					<AreaChart data={data} width={400} height={300}>
