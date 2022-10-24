@@ -187,7 +187,7 @@ export default function App() {
 										? '#d2d2d2'
 										: COLOR_RATES[Math.round(songData.rate - 1)]
 								}
-								strokeWidth={1}
+								strokeWidth={n === selectedDataKey ? 2 : 1}
 							/>
 						)
 					})}
@@ -196,7 +196,8 @@ export default function App() {
 						dot={false}
 						dataKey={'__SOLUTION'}
 						stroke="#008330"
-						opacity={0.8}
+						// @ts-ignore
+						opacity={selectedDataKey && selectedDataKey !== '__SOLUTION' ? 0.5 : 0.8}
 						strokeWidth={2}
 					/>
 				</LineChart>
