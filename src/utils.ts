@@ -1,16 +1,17 @@
 import { clamp } from 'lodash-es'
-import { RawData, SongData } from './types'
+import { RawAirtableSongData, SongData } from './types'
 
 export function normalize(val: number, min: number, max: number) {
 	return clamp((val - min) / (max - min), 0, 1)
 }
 
-export function transformSongData(fields: RawData): SongData {
+export function transformSongData(id: string, fields: RawAirtableSongData): SongData {
 	const positionsCumulative = JSON.parse(fields.positions)
 	return {
-		id: fields.Id,
+		id,
 		song: fields.songname,
 		key: `${fields.user.toLowerCase()}_${fields.Id}`,
+		rate: fields.rate,
 		user: fields.user.toLowerCase(),
 		duration: fields.sequenceDuration,
 		pressedRelative: JSON.parse(fields.durations),

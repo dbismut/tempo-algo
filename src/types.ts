@@ -1,4 +1,4 @@
-export type RawData = {
+export type RawAirtableSongData = {
 	Id: string
 	songname: string
 	durations: string
@@ -6,6 +6,7 @@ export type RawData = {
 	positions: string
 	sequenceDuration: number
 	user: string
+	rate: number
 }
 
 export type SongData = {
@@ -19,9 +20,10 @@ export type SongData = {
 	positionsRelative: number[]
 	positionsCumulative: number[]
 	duration: number
+	rate: number
 }
 
-export type Song = {
+export type SolutionSongData = {
 	name: string
 	instrument: string
 	notes: string

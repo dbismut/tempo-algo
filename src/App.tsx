@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import {
 	LineChart,
@@ -13,17 +13,28 @@ import {
 } from 'recharts'
 
 import './data'
-import { useFetchData } from './data'
+import { fetchData } from './data'
 
 import './styles.css'
-import { PlayButton } from './PlayButton'
+import { COLOR_RATES, SongUI } from './SongUI'
+import { useStore } from './store'
+import { groupBy } from 'lodash-es'
+import { button, useControls } from 'leva'
 
 export default function App() {
-	const { loading, results, songs } = useFetchData()
+	const { loading, results, songs } = useStore()
+	const groupedResults = useMemo(() => groupBy(results, 'song'), [results])
+
+	useEffect(() => {
+		fetchData()
+	}, [])
 
 	const songKeys = useMemo(
-		() => Object.keys(results).sort((a, b) => (results[a].length > results[b].length ? -1 : 1)),
-		[results]
+		() =>
+			Object.keys(groupedResults).sort((a, b) =>
+				groupedResults[a].length > groupedResults[b].length ? -1 : 1
+			),
+		[groupedResults]
 	)
 
 	const [songIndex, setSongIndex] = useState(0)
@@ -31,31 +42,45 @@ export default function App() {
 	const songName = songKeys[songIndex]
 
 	const [selectedDataKey, setSelectedDataKey] = useState<string | null>(null)
-	const [perfKey, setPerfKey] = useState<
-		'positions' | 'positionsRelative' | 'positionsCumulative' | 'pressed'
-	>('positions')
+
+	const selectedDataSet = useMemo(
+		() => (songName ? groupedResults[songName].find((k) => k.key === selectedDataKey) : undefined),
+		[groupedResults, selectedDataKey, songName]
+	)
+
+	const { visualize } = useControls(
+		{
+			visualize: {
+				options: {
+					positions: 'positions',
+					'positions (rel.)': 'positionsRelative',
+					'positions (cum.)': 'positionsCumulative',
+					pressed: 'pressed',
+				},
+			},
+			'Unselect song': button(() => setSelectedDataKey(null), { disabled: !selectedDataKey }),
+		},
+		[selectedDataKey]
+	)
 
 	const { data, series, solutionKey } = useMemo(() => {
 		if (loading) return { data: [], series: [] }
 		const _data: Record<string, number>[] = []
 		const _series: string[] = []
 		let _solutionKey: string
-		results[songName].forEach((attempt) => {
+		groupedResults[songName].forEach((attempt) => {
 			if (attempt.key !== '__SOLUTION') _series.push(attempt.key)
 			else _solutionKey = attempt.key
-			attempt[perfKey].forEach((k, i) => {
+			// @ts-ignore
+			attempt[visualize].forEach((k, i) => {
 				_data[i] = Object.assign({}, _data[i], { [attempt.key]: k })
 			})
 		})
 		return { data: _data, series: _series, solutionKey: _solutionKey! }
-	}, [loading, results, songName, perfKey])
-
-	const selectedDataSet = useMemo(
-		() => (songName ? results[songName].find((k) => k.key === selectedDataKey) : undefined),
-		[results, selectedDataKey, songName]
-	)
+	}, [loading, groupedResults, songName, visualize])
 
 	if (loading) return <>Loading…</>
+
 	return (
 		<>
 			<nav>
@@ -71,13 +96,8 @@ export default function App() {
 						</option>
 					))}
 				</select>
-				<select onChange={(v) => setPerfKey(v.target.value as any)}>
-					<option value="positions">Positions (absolute)</option>
-					<option value="positionsRelative">Positions (relative)</option>
-					<option value="positionsCumulative">Positions (relative, cumulative)</option>
-					<option value="pressed">Pressed</option>
-				</select>
-				<PlayButton selectedDataSet={selectedDataSet} songs={songs} />
+
+				{selectedDataSet && <SongUI selectedDataSet={selectedDataSet} />}
 			</nav>
 			<div className="wrapper">
 				<LineChart
@@ -95,22 +115,61 @@ export default function App() {
 					<XAxis />
 					<YAxis />
 					{/* <Tooltip /> */}
-					<Legend onClick={({ dataKey }) => setSelectedDataKey(dataKey)} />
-					{series.map((n) => (
-						<Line
-							key={n}
-							dot={false}
-							type="monotone"
-							onClick={() => setSelectedDataKey(n)}
-							dataKey={n}
-							opacity={!selectedDataKey ? 1 : n === selectedDataKey ? 1 : 0.2}
-							stroke={n.includes('bad') ? '#9c82ca' : '#82ca9d'}
-							strokeDasharray={n.includes('bad') ? 4 : undefined}
-							strokeWidth={n.includes('bad') || n === selectedDataKey ? 2 : 1}
-						/>
-					))}
+					<Legend
+						onClick={({ dataKey }) => setSelectedDataKey(dataKey)}
+						formatter={(value, entry, i) => {
+							const { color } = entry
+							const songData = groupedResults[songName][i]
+
+							return (
+								<span
+									style={{
+										color,
+										opacity: !selectedDataKey ? 1 : value === selectedDataKey ? 1 : 0.6,
+									}}
+								>
+									{value}
+									{songData.rate && (
+										<span
+											style={{
+												fontSize: '0.8em',
+											}}
+										>
+											{' '}
+											({songData.rate})
+										</span>
+									)}
+								</span>
+							)
+						}}
+					/>
+					{series.map((n, i) => {
+						const songData = groupedResults[songName][i]
+						return (
+							<Line
+								key={n}
+								dot={false}
+								type="monotone"
+								onClick={() => setSelectedDataKey(n)}
+								dataKey={n}
+								opacity={!selectedDataKey ? 1 : n === selectedDataKey ? 1 : 0.2}
+								stroke={
+									songData.rate === undefined
+										? '#d2d2d2'
+										: COLOR_RATES[Math.round(songData.rate - 1)]
+								}
+								strokeWidth={1}
+							/>
+						)
+					})}
 					{solutionKey && (
-						<Line type="monotone" dot={false} dataKey={solutionKey} stroke="#F00" strokeWidth={2} />
+						<Line
+							type="monotone"
+							dot={false}
+							dataKey={solutionKey}
+							stroke="#008330"
+							strokeWidth={2}
+						/>
 					)}
 				</LineChart>
 				{/* {solutionKey && selectedDataKey && (

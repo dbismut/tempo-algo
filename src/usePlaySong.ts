@@ -1,10 +1,12 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import Player from './lib/Player'
-import { Song, SongData } from './types'
+import { useStore } from './store'
+import { SongData } from './types'
 
 let player: Player
 
-export function usePlaySong(songs: Record<string, Song>, songData: SongData) {
+export function usePlaySong(songData: SongData) {
+	const songs = useStore((s) => s.songs)
 	const { pressed, positions } = songData
 	const { vol, interval, notes, reverb, instrument } = songs[songData.song]!
 

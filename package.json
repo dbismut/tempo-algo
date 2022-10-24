@@ -6,12 +6,14 @@
 	"main": "src/index.tsx",
 	"dependencies": {
 		"airtable": "0.11.5",
+		"leva": "^0.9.32",
 		"lodash-es": "^4.17.21",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"react-scripts": "5.0.1",
 		"recharts": "2.1.15",
-		"xregexp": "^4.3.0"
+		"xregexp": "^4.3.0",
+		"zustand": "^4.1.3"
 	},
 	"devDependencies": {
 		"@types/lodash-es": "^4.17.6",
