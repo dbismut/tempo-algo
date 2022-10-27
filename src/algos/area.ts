@@ -13,7 +13,7 @@ export const area = (s1: SongData, s2: SongData) => {
 	const absScore = areaBetweenSeries(p1abs, p2abs, s2.key)
 	const relScore = areaBetweenSeries(p1rel, p2rel, s2.key)
 
-	return (1 - absScore) * (1 - relScore * 0.5)
+	return (1 - absScore) * (1 - relScore)
 }
 
 export const areaBetweenSeries = (p1: number[], p2: number[], key?: string) => {
