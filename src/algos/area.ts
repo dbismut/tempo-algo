@@ -45,21 +45,26 @@ export const areaBetweenSeries = (p1: number[], p2: number[], key?: string) => {
 		deltaAreas.push(area)
 	}
 
-	const area1 = d3.polygonArea(
-		p1
+	const min = p1.reduce((acc, v) => Math.min(acc, v), Infinity)
+
+	const area1 = areaFromY(p1, 0)
+
+	key === '__FLAT_7 Nation Army - White Stripes' && console.log(key, min, area1, areaFromY(p1, 0))
+
+	return sum(deltaAreas) / area1
+}
+
+function areaFromY(p: number[], y: number) {
+	return d3.polygonArea(
+		p
 			.map((k, i) => [i, k])
 			.concat(
-				Array(p1.length)
+				Array(p.length)
 					.fill(0)
-					.map((_, i) => [i, 0])
+					.map((_, i) => [i, y])
 					.reverse()
 			) as Point[]
 	)
-
-	// key === '__FLAT_7 Nation Army - White Stripes' &&
-	// 	console.log(key, d3.polygonArea(points), sum(deltaAreas), area1)
-
-	return sum(deltaAreas) / area1
 }
 
 function getLineEq([x1, y1]: Point, [x2, y2]: Point) {

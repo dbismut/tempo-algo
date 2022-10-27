@@ -8,6 +8,14 @@ body {
   font-size: 13px;
 }
 
+.chart-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #ffffff;
+  padding-bottom: 10px;
+}
+
 .wrapper {
   position: relative;
   width: 100%;

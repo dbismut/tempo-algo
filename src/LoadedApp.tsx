@@ -107,88 +107,89 @@ export const LoadedApp = () => {
 	return (
 		<>
 			<Leva titleBar={{ filter: false }} />
-			<nav>
-				<select
-					value={songName}
-					onChange={(v) => {
-						setSelectedSong(v.target.value)
-						setSelectedDataKey(null)
-					}}
-				>
-					{songKeys.map((s) => (
-						<option key={s} value={s}>
-							{s}
-						</option>
-					))}
-				</select>
-				{selectedDataSet && <SongUI dataSet={selectedDataSet} />}
-			</nav>
-			<div className="wrapper">
-				<LineChart
-					width={window.innerWidth}
-					height={window.innerHeight * 0.6}
-					data={data}
-					margin={{
-						right: 30,
-						left: 30,
-					}}
-				>
-					<CartesianAxis />
-					<CartesianGrid strokeDasharray="3 3" />
-					<XAxis />
-					<YAxis />
-					{/* <Tooltip /> */}
-					<Legend
-						onClick={({ dataKey }) => setSelectedDataKey(dataKey)}
-						formatter={(value, entry) => {
-							const { color } = entry
-							const songData = groupedResults[songName][value]
-
-							return (
-								<span
-									style={{
-										color,
-										opacity: !selectedDataKey ? 1 : value === selectedDataKey ? 1 : 0.2,
-									}}
-								>
-									{value}
-									{songData.rate && <span> ({songData.rate})</span>}
-								</span>
-							)
+			<div className="chart-wrapper">
+				<nav>
+					<select
+						value={songName}
+						onChange={(v) => {
+							setSelectedSong(v.target.value)
+							setSelectedDataKey(null)
 						}}
-					/>
-					{series.map((n) => {
-						const songData = groupedResults[songName][n]
-						return (
-							<Line
-								key={n}
-								dot={false}
-								type={curve as CurveType}
-								onClick={() => setSelectedDataKey(n as any)}
-								dataKey={n}
-								opacity={!selectedDataKey ? 0.9 : n === selectedDataKey ? 1 : 0.2}
-								stroke={
-									songData.rate === undefined
-										? '#d2d2d2'
-										: COLOR_RATES[Math.round(songData.rate - 1)]
-								}
-								strokeWidth={n === selectedDataKey ? 2 : 1}
-							/>
-						)
-					})}
-					{solutionKey && (
-						<Line
-							type={curve as CurveType}
-							dot={false}
-							dataKey={solutionKey}
-							stroke="#008330"
-							// @ts-ignore
-							opacity={selectedDataKey && selectedDataKey !== solutionKey ? 0.5 : 0.8}
-							strokeWidth={2}
+					>
+						{songKeys.map((s) => (
+							<option key={s} value={s}>
+								{s}
+							</option>
+						))}
+					</select>
+					{selectedDataSet && <SongUI dataSet={selectedDataSet} />}
+				</nav>
+				<div className="wrapper">
+					<LineChart
+						width={window.innerWidth}
+						height={window.innerHeight * 0.3}
+						data={data}
+						margin={{
+							right: 30,
+							left: 30,
+						}}
+					>
+						<CartesianAxis />
+						<CartesianGrid strokeDasharray="3 3" />
+						<XAxis />
+						<YAxis />
+						{/* <Tooltip /> */}
+						<Legend
+							onClick={({ dataKey }) => setSelectedDataKey(dataKey)}
+							formatter={(value, entry) => {
+								const { color } = entry
+								const songData = groupedResults[songName][value]
+
+								return (
+									<span
+										style={{
+											color,
+											opacity: !selectedDataKey ? 1 : value === selectedDataKey ? 1 : 0.2,
+										}}
+									>
+										{value}
+										{songData.rate && <span> ({songData.rate})</span>}
+									</span>
+								)
+							}}
 						/>
-					)}
-				</LineChart>
-				{/* {solutionKey && selectedDataKey && (
+						{series.map((n) => {
+							const songData = groupedResults[songName][n]
+							return (
+								<Line
+									key={n}
+									dot={false}
+									type={curve as CurveType}
+									onClick={() => setSelectedDataKey(n as any)}
+									dataKey={n}
+									opacity={!selectedDataKey ? 0.9 : n === selectedDataKey ? 1 : 0.2}
+									stroke={
+										songData.rate === undefined
+											? '#d2d2d2'
+											: COLOR_RATES[Math.round(songData.rate - 1)]
+									}
+									strokeWidth={n === selectedDataKey ? 2 : 1}
+								/>
+							)
+						})}
+						{solutionKey && (
+							<Line
+								type={curve as CurveType}
+								dot={false}
+								dataKey={solutionKey}
+								stroke="#008330"
+								// @ts-ignore
+								opacity={selectedDataKey && selectedDataKey !== solutionKey ? 0.5 : 0.8}
+								strokeWidth={2}
+							/>
+						)}
+					</LineChart>
+					{/* {solutionKey && selectedDataKey && (
 					<AreaChart data={data} width={400} height={300}>
 						<CartesianGrid strokeDasharray="3 3" />
 						<XAxis />
@@ -197,6 +198,7 @@ export const LoadedApp = () => {
 						<Area stackId="pv" dataKey={selectedDataKey} stroke="#82ca9d" fill="#82ca9d" />
 					</AreaChart>
 				)} */}
+				</div>
 			</div>
 			<Table data={results}></Table>
 		</>
