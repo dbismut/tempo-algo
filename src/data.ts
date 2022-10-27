@@ -67,8 +67,8 @@ export const fetchData = () => {
 			const duration = sum(song.positions)
 			const positionsRelative = song.positions.map((d) => d / duration)
 			results.push({
-				id: '-1',
-				key: '__SOLUTION',
+				id: `__SOLUTION_${k}`,
+				key: `__SOLUTION_${k}`,
 				song: k,
 				user: 'Solution',
 				duration,
@@ -81,6 +81,20 @@ export const fetchData = () => {
 				pressed: song.durations,
 				pressedRelative: song.durations.map((d) => d / duration),
 				rate: 10,
+			})
+
+			results.push({
+				id: `__FLAT_${k}`,
+				key: `__FLAT_${k}`,
+				song: k,
+				user: 'Flat',
+				duration: song.positions.length * 200,
+				positions: song.positions.map(() => 200),
+				positionsRelative: song.positions.map(() => 1 / song.positions.length),
+				positionsCumulative: song.positions.map((_, i) => i * 200),
+				pressed: song.positions.map(() => 30),
+				pressedRelative: song.positions.map(() => (30 / song.positions.length) * 200),
+				rate: 1,
 			})
 		}
 		useStore.setState({ loading: false, results, songs })

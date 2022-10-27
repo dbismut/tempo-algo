@@ -42,14 +42,15 @@ export const SongUI = ({ dataSet }: Props) => {
 				render: () => dataSet.key !== '__SOLUTION',
 				onEditEnd: (v) => setSongRate(v),
 			},
-			score: { value: dataSet.score!, disabled: true, order: 2 },
+			area: { value: dataSet.area || -1, disabled: true, order: 2 },
+			ivan: { value: dataSet.ivan || -1, disabled: true, order: 3 },
 		}),
 		[dataSet, playing, loading]
 	)
 
 	useEffect(() => {
-		set({ score: dataSet.score })
-	}, [set, dataSet.score])
+		set({ area: dataSet.area || -1, ivan: dataSet.ivan || -1 })
+	}, [set, dataSet])
 
 	return null
 }

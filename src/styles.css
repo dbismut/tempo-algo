@@ -5,12 +5,13 @@
 body {
   margin: 0;
   font-family: system-ui;
+  font-size: 13px;
 }
 
 .wrapper {
   position: relative;
-  height: 400px;
   width: 100%;
+  margin-bottom: 30px;
 }
 
 nav {
@@ -27,3 +28,88 @@ nav {
   cursor: pointer;
 }
 
+.table-wrapper {
+  padding: 20px;
+}
+
+.table-wrapper table {
+  border-collapse: collapse;
+  background: #fff;
+  overflow: hidden;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  font-size: 13px;
+  height: 1px;
+}
+
+.table-wrapper table tbody {
+  border: 1px solid #f5f5f5;
+}
+
+.table-wrapper table thead {
+  border: 1px solid #36304a; 
+}
+
+
+
+.table-wrapper table thead tr {
+  height: 40px;
+  background: #36304a;
+}
+
+.table-wrapper table th {
+  color: #fff;
+  line-height: 1.2;
+  font-weight: unset;
+}
+
+.table-wrapper table tbody tr {
+  height: 40px;
+}
+
+.table-wrapper tbody tr {
+  color: gray;
+  line-height: 1.2;
+  font-weight: unset;
+}
+
+.table-wrapper table td, table th {
+  text-align: left;
+}
+
+.table-wrapper table td, table th {
+  padding-left: 8px;
+}
+
+.table-wrapper table td:first-of-type, table th:first-of-type {
+  padding-left: 20px;
+}
+
+.table-wrapper tbody tr:nth-child(even) {
+  background-color: #f5f5f5;
+}
+
+.table-wrapper table td.rate {
+  padding: 0;
+  color: black;
+}
+
+.table-wrapper table td.rate > div {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-wrapper table td.key {
+  cursor: pointer;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.select-none {
+  user-select: none;
+}
