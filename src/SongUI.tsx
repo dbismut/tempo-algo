@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useSetSongRate } from './data'
 import { SongData } from './types'
 import { usePlaySong } from './usePlaySong'
+import * as algos from './algos'
 
 type Props = {
 	dataSet: SongData
@@ -25,6 +26,13 @@ export const SongUI = ({ dataSet }: Props) => {
 	const { playSong, playing } = usePlaySong(dataSet!)
 	const [{ loading }, setSongRate] = useSetSongRate(dataSet.id)
 
+	const algosInputs = Object.keys(algos).reduce(
+		(acc, algo) =>
+			// @ts-ignore
+			Object.assign(acc, { [algo]: { value: dataSet[algo] ?? -1, disabled: true, order: 2 } }),
+		{}
+	)
+
 	const [, set] = useControls(
 		dataSet.key,
 		() => ({
@@ -32,24 +40,28 @@ export const SongUI = ({ dataSet }: Props) => {
 				disabled: !dataSet,
 			}),
 			rate: {
-				value: dataSet.rate || 0,
+				value: dataSet.rate ?? 0,
 				min: 0,
 				max: 10,
 				step: 0.5,
 				hint: '0 is not rated',
 				disabled: loading,
 				order: 1,
-				render: () => dataSet.key !== '__SOLUTION',
+				render: () => !dataSet.key.includes('__SOLUTION') && !dataSet.key.includes('__FLAT'),
 				onEditEnd: (v) => setSongRate(v),
 			},
-			area: { value: dataSet.area || -1, disabled: true, order: 2 },
-			ivan: { value: dataSet.ivan || -1, disabled: true, order: 3 },
+			...algosInputs,
 		}),
 		[dataSet, playing, loading]
 	)
 
 	useEffect(() => {
-		set({ area: dataSet.area || -1, ivan: dataSet.ivan || -1 })
+		const d = Object.keys(algos).reduce(
+			// @ts-ignore
+			(acc, algo) => Object.assign(acc, { [algo]: dataSet[algo] ?? -1 }),
+			{}
+		)
+		set(d)
 	}, [set, dataSet])
 
 	return null

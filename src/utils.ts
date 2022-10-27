@@ -10,7 +10,7 @@ export function transformSongData(id: string, fields: RawAirtableSongData): Song
 	return {
 		id,
 		song: fields.songname,
-		key: `${fields.user.toLowerCase()}_${fields.Id}`,
+		key: `${fields.user.toLowerCase().trim()}_${fields.Id}`,
 		rate: fields.rate,
 		user: fields.user.toLowerCase(),
 		duration: fields.sequenceDuration,

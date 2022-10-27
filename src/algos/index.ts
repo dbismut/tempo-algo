@@ -1,2 +1,5 @@
-export * from './area'
 export * from './ivan'
+export * from './area'
+export * from './areaMin'
+export * from './areaScale'
+export * from './areaSign'

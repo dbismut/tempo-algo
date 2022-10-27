@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useMemo } from 'react'
 import {
 	LineChart,
@@ -35,8 +34,10 @@ export const LoadedApp = () => {
 			const solutionData = _g[key].find((s) => s.key.includes('__SOLUTION'))
 			if (solutionData) {
 				_g[key].forEach((s) => {
-					s.area = algos.area(solutionData, s) * 10
-					s.ivan = algos.ivan(solutionData, s) * 10
+					Object.entries(algos).forEach(([algoName, algo]) => {
+						// @ts-ignore
+						s[algoName] = algo(solutionData, s) * 10
+					})
 				})
 			}
 		}
@@ -127,7 +128,7 @@ export const LoadedApp = () => {
 				<div className="wrapper">
 					<LineChart
 						width={window.innerWidth}
-						height={window.innerHeight * 0.3}
+						height={window.innerHeight * 0.4}
 						data={data}
 						margin={{
 							right: 30,

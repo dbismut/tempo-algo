@@ -4,7 +4,7 @@ import * as d3 from 'd3'
 
 type Point = [number, number]
 
-export const area = (s1: SongData, s2: SongData) => {
+export const areaScale = (s1: SongData, s2: SongData) => {
 	const p1abs: number[] = s1.positions.slice(1)
 	const p2abs: number[] = s2.positions.slice(1)
 	const p1rel: number[] = s1.positionsRelative.slice(1)
@@ -13,11 +13,20 @@ export const area = (s1: SongData, s2: SongData) => {
 	const absScore = areaBetweenSeries(p1abs, p2abs, s2.key)
 	const relScore = areaBetweenSeries(p1rel, p2rel, s2.key)
 
-	return (1 - absScore) * (1 - relScore)
+	// s2.key === 'ivanbad_94' && console.log(absScore, relScore)
+
+	return Math.max(0, 1 - relScore) * Math.max(0, 1 - absScore)
 }
 
 const areaBetweenSeries = (p1: number[], p2: number[], key?: string) => {
-	const points = p1.map((k, i) => [i, k]).concat(p2.map((k, i) => [i, k]).reverse()) as Point[]
+	const min1 = p1.reduce((acc, v) => Math.min(acc, v), Infinity)
+	const max1 = p1.reduce((acc, v) => Math.max(acc, v), 0)
+
+	const min2 = p2.reduce((acc, v) => Math.min(acc, v), Infinity)
+	const max2 = p2.reduce((acc, v) => Math.max(acc, v), 0)
+
+	const p2h = p2.map((k) => (k / (max2 - min2 || 2)) * (max1 - min1))
+	const points = p1.map((k, i) => [i, k]).concat(p2h.map((k, i) => [i, k]).reverse()) as Point[]
 
 	const l = points.length
 
@@ -45,11 +54,10 @@ const areaBetweenSeries = (p1: number[], p2: number[], key?: string) => {
 		deltaAreas.push(area)
 	}
 
-	const min = p1.reduce((acc, v) => Math.min(acc, v), Infinity)
-
 	const area1 = areaFromY(p1, 0)
 
-	// key === '__FLAT_Mr Vain - Culture Beat' && console.log(key, min, area1, sum(deltaAreas))
+	// key === '__FLAT_7 Nation Army - White Stripes' &&
+	// 	console.log(key, points, { min1, max1, min2, max2 })
 
 	return sum(deltaAreas) / area1
 }
