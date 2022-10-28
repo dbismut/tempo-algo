@@ -14,7 +14,7 @@ const BONUS_VALUE_MIN = 1
 const BONUS_VALUE_MID = 1.2
 const BONUS_VALUE_MAX = 1.4
 
-export const ivan = (s1: SongData, s2: SongData) => {
+export const _ivan = (s1: SongData, s2: SongData) => {
 	const abs1 = s1.positions.slice(1)
 	const abs2 = s2.positions.slice(1)
 
