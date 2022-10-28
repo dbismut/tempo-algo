@@ -1,3 +1,5 @@
+import * as algos from './algos'
+
 export type RawAirtableSongData = {
 	Id: string
 	songname: string
@@ -21,10 +23,7 @@ export type SongData = {
 	positionsCumulative: number[]
 	duration: number
 	rate: number
-} & {
-	area?: number
-	ivan?: number
-}
+} & Partial<Record<keyof typeof algos, number>>
 
 export type SolutionSongData = {
 	name: string

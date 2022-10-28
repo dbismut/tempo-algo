@@ -25,7 +25,9 @@ const areaBetweenSeries = (p1: number[], p2: number[], key?: string) => {
 	const min2 = p2.reduce((acc, v) => Math.min(acc, v), Infinity)
 	const max2 = p2.reduce((acc, v) => Math.max(acc, v), 0)
 
-	const p2h = p2.map((k) => (k / (max2 - min2 || 2)) * (max1 - min1))
+	const p2h = p2.map((k) =>
+		max2 === min2 ? (max1 - min1) / 2 : ((k - min2) / (max2 - min2)) * (max1 - min1) + min1
+	)
 	const points = p1.map((k, i) => [i, k]).concat(p2h.map((k, i) => [i, k]).reverse()) as Point[]
 
 	const l = points.length

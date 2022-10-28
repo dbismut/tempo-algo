@@ -1,7 +1,5 @@
 import { useMemo } from 'react'
 import {
-	LineChart,
-	Line,
 	XAxis,
 	YAxis,
 	CartesianGrid,
@@ -97,13 +95,18 @@ export const LoadedApp = () => {
 			}
 			if (key.includes('__SOLUTION')) solutionKey = key
 			else _series.push(key)
+			const isSolAndSelected =
+				key.includes('__SOLUTION') && !!selectedDataSet && selectedDataSet.key !== key
 			// @ts-ignore
 			attempt[visualize].forEach((k, i) => {
-				_data[i] = Object.assign({}, _data[i], { [attempt.key]: k })
+				_data[i] = Object.assign({}, _data[i], {
+					// @ts-ignore
+					[attempt.key]: isSolAndSelected ? k - selectedDataSet[visualize][i] : k,
+				})
 			})
 		}
 		return { data: _data, series: _series, solutionKey }
-	}, [groupedResults, songName, visualize, filter])
+	}, [groupedResults, songName, visualize, filter, selectedDataSet])
 
 	return (
 		<>
@@ -126,14 +129,11 @@ export const LoadedApp = () => {
 					{selectedDataSet && <SongUI dataSet={selectedDataSet} />}
 				</nav>
 				<div className="wrapper">
-					<LineChart
+					<AreaChart
 						width={window.innerWidth}
 						height={window.innerHeight * 0.4}
 						data={data}
-						margin={{
-							right: 30,
-							left: 30,
-						}}
+						margin={{ right: 30, left: 30 }}
 					>
 						<CartesianAxis />
 						<CartesianGrid strokeDasharray="3 3" />
@@ -162,12 +162,14 @@ export const LoadedApp = () => {
 						{series.map((n) => {
 							const songData = groupedResults[songName][n]
 							return (
-								<Line
+								<Area
 									key={n}
-									dot={false}
 									type={curve as CurveType}
 									onClick={() => setSelectedDataKey(n as any)}
 									dataKey={n}
+									fill="transparent"
+									stackId={n === selectedDataKey ? 'pv' : undefined}
+									baseLine={800}
 									opacity={!selectedDataKey ? 0.9 : n === selectedDataKey ? 1 : 0.2}
 									stroke={
 										songData.rate === undefined
@@ -179,29 +181,22 @@ export const LoadedApp = () => {
 							)
 						})}
 						{solutionKey && (
-							<Line
+							<Area
 								type={curve as CurveType}
-								dot={false}
 								dataKey={solutionKey}
 								stroke="#008330"
-								// @ts-ignore
+								fill={
+									selectedDataKey && selectedDataKey !== solutionKey ? '#e1d200ba' : 'transparent'
+								}
+								stackId="pv"
 								opacity={selectedDataKey && selectedDataKey !== solutionKey ? 0.5 : 0.8}
 								strokeWidth={2}
 							/>
 						)}
-					</LineChart>
-					{/* {solutionKey && selectedDataKey && (
-					<AreaChart data={data} width={400} height={300}>
-						<CartesianGrid strokeDasharray="3 3" />
-						<XAxis />
-						<YAxis />
-						<Area stackId="pv" dataKey={solutionKey} stroke="#F00" fill="transparent" />
-						<Area stackId="pv" dataKey={selectedDataKey} stroke="#82ca9d" fill="#82ca9d" />
 					</AreaChart>
-				)} */}
 				</div>
 			</div>
-			<Table data={results}></Table>
+			<Table data={results} />
 		</>
 	)
 }

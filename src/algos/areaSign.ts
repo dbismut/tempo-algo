@@ -62,7 +62,7 @@ const areaBetweenSeries = (p1: number[], p2: number[], key?: string) => {
 		}
 	}
 
-	key === '__FLAT_My Own Summer - Deftones' && console.log(deltaAreas)
+	// key === '__FLAT_The Blue Danube, Strauss' && console.log(deltaAreas)
 
 	return sumBy(deltaAreas, 'area') / sumBy(deltaAreas, 'zeroArea')
 }
