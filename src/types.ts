@@ -11,6 +11,12 @@ export type RawAirtableSongData = {
 	rate: number
 }
 
+export type Algo = {
+	value: number
+	delta?: number
+	error?: boolean
+}
+
 export type SongData = {
 	id: string
 	key: string
@@ -23,7 +29,7 @@ export type SongData = {
 	positionsCumulative: number[]
 	duration: number
 	rate: number
-} & Partial<Record<keyof typeof algos, number>>
+} & Partial<Record<keyof typeof algos, Algo>>
 
 export type SolutionSongData = {
 	name: string

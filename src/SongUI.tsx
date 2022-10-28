@@ -28,8 +28,10 @@ export const SongUI = ({ dataSet }: Props) => {
 
 	const algosInputs = Object.keys(algos).reduce(
 		(acc, algo) =>
-			// @ts-ignore
-			Object.assign(acc, { [algo]: { value: dataSet[algo] ?? -1, disabled: true, order: 2 } }),
+			Object.assign(acc, {
+				// @ts-ignore
+				[algo]: { value: dataSet[algo]?.value ?? -1, disabled: true, order: 2 },
+			}),
 		{}
 	)
 
@@ -58,7 +60,7 @@ export const SongUI = ({ dataSet }: Props) => {
 	useEffect(() => {
 		const d = Object.keys(algos).reduce(
 			// @ts-ignore
-			(acc, algo) => Object.assign(acc, { [algo]: dataSet[algo] ?? -1 }),
+			(acc, algo) => Object.assign(acc, { [algo]: dataSet[algo]?.value ?? -1 }),
 			{}
 		)
 		set(d)

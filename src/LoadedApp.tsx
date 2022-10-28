@@ -33,8 +33,13 @@ export const LoadedApp = () => {
 			if (solutionData) {
 				_g[key].forEach((s) => {
 					Object.entries(algos).forEach(([algoName, algo]) => {
+						const value = algo(solutionData, s) * 10
 						// @ts-ignore
-						s[algoName] = algo(solutionData, s) * 10
+						s[algoName] = {
+							value,
+							delta: s.rate !== undefined ? Math.abs(s.rate - value) / value : undefined,
+							error: (s.rate < 5 && value < 5) || (s.rate >= 5 && value >= 5),
+						}
 					})
 				})
 			}

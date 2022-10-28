@@ -4,7 +4,7 @@ import * as d3 from 'd3'
 
 type Point = [number, number]
 
-export const areaSign = (s1: SongData, s2: SongData) => {
+export const peaks = (s1: SongData, s2: SongData) => {
 	const p1abs: number[] = s1.positions.slice(1)
 	const p2abs: number[] = s2.positions.slice(1)
 	const p1rel: number[] = s1.positionsRelative.slice(1)

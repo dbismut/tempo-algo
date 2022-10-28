@@ -127,10 +127,6 @@ nav {
   font-size: 0.75em;
 }
 
-.table-wrapper table td.key {
-  cursor: pointer;
-}
-
 .cursor-pointer {
   cursor: pointer;
 }
