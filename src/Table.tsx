@@ -21,8 +21,7 @@ type Conclusion = { sum: number; errorWhenRight: number; errorWhenWrong: number;
 const stringify = (concl: Conclusion) => `avg score: ${(concl.sum / concl.count).toFixed(2)}
 err. total: ${concl.errorWhenRight + concl.errorWhenWrong}
 err. when right: ${concl.errorWhenRight}
-err. when wrong: ${concl.errorWhenWrong}
-`
+err. when wrong: ${concl.errorWhenWrong}`
 
 const columnHelper = createColumnHelper<SongData>()
 
