@@ -16,10 +16,13 @@ import { useStore } from './store'
 import { SongData } from './types'
 import * as algos from './algos'
 
-type Conclusion = { sum: number; error: number; count: number }
+type Conclusion = { sum: number; errorWhenRight: number; errorWhenWrong: number; count: number }
 
 const stringify = (concl: Conclusion) => `avg score: ${(concl.sum / concl.count).toFixed(2)}
-nb errors: ${concl.error}`
+err. total: ${concl.errorWhenRight + concl.errorWhenWrong}
+err. when right: ${concl.errorWhenRight}
+err. when wrong: ${concl.errorWhenWrong}
+`
 
 const columnHelper = createColumnHelper<SongData>()
 
@@ -129,11 +132,19 @@ export const Table = ({ data }: { data: SongData[] }) => {
 							sum: acc.sum + d[algo]?.value || 0,
 							// @ts-ignore
 							count: d[algo] ? acc.count + 1 : acc.count,
-							// @ts-ignore
-							error: d[algo]?.error === false ? acc.error + 1 : acc.error,
+							errorWhenRight:
+								// @ts-ignore
+								d[algo]?.error === false && d.rate >= 5
+									? acc.errorWhenRight + 1
+									: acc.errorWhenRight,
+							errorWhenWrong:
+								// @ts-ignore
+								d[algo]?.error === false && d.rate < 5
+									? acc.errorWhenWrong + 1
+									: acc.errorWhenWrong,
 						}
 					},
-					{ error: 0, count: 0, sum: 0 }
+					{ errorWhenRight: 0, errorWhenWrong: 0, count: 0, sum: 0 }
 				),
 			})
 		})
