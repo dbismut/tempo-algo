@@ -5,6 +5,8 @@ import { RawAirtableSongData, SolutionSongData, SongData } from './types'
 import { transformSongData } from './utils'
 import { updateSongs, useStore } from './store'
 
+const DEBUG = true
+
 Airtable.configure({
 	endpointUrl: 'https://api.airtable.com',
 	apiKey: process.env.REACT_APP_AIRTABLE_API_KEY,
@@ -59,6 +61,11 @@ export const useSetSongRate = (id: string) => {
 }
 
 export const fetchData = () => {
+	if (DEBUG) {
+		const { results, songs } = require('./data.js')
+		useStore.setState({ loading: false, results, songs })
+		return
+	}
 	Promise.all([fetchAirtable(), fetchSongs()]).then(([results, songs]) => {
 		// add solutions to results
 		for (let k in songs) {

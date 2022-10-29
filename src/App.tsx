@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import './data'
-import { fetchData } from './data'
+import { fetchData } from './dataFetcher'
 import { LoadedApp } from './LoadedApp'
 import { useStore } from './store'
 

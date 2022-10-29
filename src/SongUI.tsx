@@ -1,6 +1,6 @@
 import { button, useControls } from 'leva'
 import { useEffect } from 'react'
-import { useSetSongRate } from './data'
+import { useSetSongRate } from './dataFetcher'
 import { SongData } from './types'
 import { usePlaySong } from './usePlaySong'
 import * as algos from './algos'

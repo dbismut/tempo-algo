@@ -31,11 +31,12 @@ nav {
   padding: 0 20px;
 }
 
-.recharts-line, .recharts-legend-item  {
+.recharts-area.recharts-layer, .recharts-legend-item  {
   cursor: pointer;
 }
 
 .table-wrapper {
+  width: 100vw;
   padding: 0 20px;
 }
 

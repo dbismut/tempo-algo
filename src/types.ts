@@ -41,3 +41,5 @@ export type SolutionSongData = {
 	positions: number[]
 	durations: number[]
 }
+
+export type Point = [number, number]

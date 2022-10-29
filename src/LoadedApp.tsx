@@ -10,7 +10,7 @@ import {
 	CartesianAxis,
 } from 'recharts'
 import { find, groupBy, keyBy } from 'lodash-es'
-import { button, Leva, useControls } from 'leva'
+import { button, useControls } from 'leva'
 
 import './data'
 
@@ -20,6 +20,7 @@ import { SongData } from './types'
 import { CurveType } from 'recharts/types/shape/Curve'
 import * as algos from './algos'
 import { Table } from './Table'
+import { LevaThemed } from './LevaThemed'
 
 export const LoadedApp = () => {
 	const results = useStore((s) => s.results)
@@ -38,7 +39,7 @@ export const LoadedApp = () => {
 						s[algoName] = {
 							value,
 							delta: s.rate !== undefined ? Math.abs(s.rate - value) / value : undefined,
-							error: (s.rate < 5 && value < 5) || (s.rate >= 5 && value >= 5),
+							error: (s.rate < 5 && value >= 5) || (s.rate >= 5 && value < 5),
 						}
 					})
 				})
@@ -115,7 +116,7 @@ export const LoadedApp = () => {
 
 	return (
 		<>
-			<Leva titleBar={{ filter: false }} />
+			<LevaThemed />
 			<div className="chart-wrapper">
 				<nav>
 					<select
@@ -201,7 +202,7 @@ export const LoadedApp = () => {
 					</AreaChart>
 				</div>
 			</div>
-			<Table data={results} />
+			<Table data={results} selectedSong={songName} />
 		</>
 	)
 }

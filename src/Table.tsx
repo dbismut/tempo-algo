@@ -34,10 +34,10 @@ declare module '@tanstack/table-core' {
 
 const RenderRate = ({
 	info,
-	diff,
+	markErrors,
 }: {
 	info: CellContext<SongData, number | undefined>
-	diff?: boolean
+	markErrors?: boolean
 }) => {
 	const value = info.getValue()
 	if (value === undefined) return null
@@ -48,12 +48,14 @@ const RenderRate = ({
 
 	const rate = info.row.original.rate
 
-	const background = diff
+	const background = markErrors
 		? info.column.id === 'rate' || rate === undefined
 			? 'transparent'
 			: error
-			? '#00b300'
-			: '#e60000'
+			? rate > 5
+				? '#a629ff'
+				: '#e60000'
+			: '#00b30088'
 		: COLOR_RATES[Math.max(0, Math.floor(value - 1))]
 
 	return (
@@ -64,10 +66,10 @@ const RenderRate = ({
 	)
 }
 
-const columns = (diff: boolean) => [
+const columns = (markErrors: boolean) => [
 	columnHelper.accessor('key', {
 		meta: {
-			className: 'cursor-pointer select-none key',
+			className: 'cursor-pointer key',
 		},
 	}),
 	columnHelper.accessor('song', {}),
@@ -83,7 +85,7 @@ const columns = (diff: boolean) => [
 			className: 'figure',
 		},
 		// @ts-ignore
-		cell: (info) => <RenderRate info={info} diff={diff} />,
+		cell: (info) => <RenderRate info={info} markErrors={markErrors} />,
 	}),
 	...Object.keys(algos).map((algo) =>
 		// @ts-ignore
@@ -93,20 +95,20 @@ const columns = (diff: boolean) => [
 				isAlgo: true,
 				className: 'figure',
 			},
-			cell: (info) => <RenderRate info={info} diff={diff} />,
+			cell: (info) => <RenderRate info={info} markErrors={markErrors} />,
 		})
 	),
 ]
 
-export const Table = ({ data }: { data: SongData[] }) => {
+export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?: string }) => {
 	const [sorting, setSorting] = useState<SortingState>([])
 
-	const { diff, filterSongs } = useControls('table', {
-		diff: { value: false, hint: 'highlight differences with rate', label: 'mark errors' },
-		filterSongs: { value: false, label: 'filter songs' },
+	const { hideUnrated, markErrors, filterSongs } = useControls('table', {
+		hideUnrated: { value: true, label: 'hide unrated' },
+		markErrors: { value: false, hint: 'highlight differences with rate', label: 'mark errors' },
+		filterSongs: { value: false, label: 'sel. song only' },
 	})
 
-	const selectedSong = useStore((s) => s.selectedSong)
 	const selectedSongRef = useRef(selectedSong)
 	selectedSongRef.current = selectedSong
 
@@ -114,10 +116,11 @@ export const Table = ({ data }: { data: SongData[] }) => {
 		() =>
 			data.filter((s) => {
 				let filter = !s.key.includes('__SOLUTION')
+				if (hideUnrated) filter &&= s.rate !== undefined
 				if (filterSongs) filter &&= s.song === selectedSongRef.current
 				return filter
 			}),
-		[data, filterSongs]
+		[data, filterSongs, hideUnrated]
 	)
 
 	const conclusions = useMemo(() => {
@@ -133,14 +136,10 @@ export const Table = ({ data }: { data: SongData[] }) => {
 							count: d[algo] ? acc.count + 1 : acc.count,
 							errorWhenRight:
 								// @ts-ignore
-								d[algo]?.error === false && d.rate >= 5
-									? acc.errorWhenRight + 1
-									: acc.errorWhenRight,
+								d[algo]?.error && d.rate >= 5 ? acc.errorWhenRight + 1 : acc.errorWhenRight,
 							errorWhenWrong:
 								// @ts-ignore
-								d[algo]?.error === false && d.rate < 5
-									? acc.errorWhenWrong + 1
-									: acc.errorWhenWrong,
+								d[algo]?.error && d.rate < 5 ? acc.errorWhenWrong + 1 : acc.errorWhenWrong,
 						}
 					},
 					{ errorWhenRight: 0, errorWhenWrong: 0, count: 0, sum: 0 }
@@ -152,7 +151,7 @@ export const Table = ({ data }: { data: SongData[] }) => {
 
 	const table = useReactTable({
 		data: _data,
-		columns: columns(diff),
+		columns: columns(markErrors),
 		state: {
 			sorting,
 		},
