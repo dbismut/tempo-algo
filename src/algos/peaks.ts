@@ -17,9 +17,9 @@ export const peaks = (s1: SongData, s2: SongData) => {
 	return Math.max(0, 1 - relScore * 1.4)
 }
 
-const areaBetweenSeries = (p1: number[], p2: number[], key?: string) => {
-	const points = p1.map((k, i) => [i, k]).concat(p2.map((k, i) => [i, k]).reverse()) as Point[]
-	const min = p1.reduce((acc, v) => Math.min(acc, v), Infinity)
+const areaBetweenSeries = (s1: number[], s2: number[], key?: string) => {
+	const points = s1.map((k, i) => [i, k]).concat(s2.map((k, i) => [i, k]).reverse()) as Point[]
+	const min = s1.reduce((acc, v) => Math.min(acc, v), Infinity)
 
 	// key === '__FLAT_My Own Summer - Deftones' && console.log(points)
 

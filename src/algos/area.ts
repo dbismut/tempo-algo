@@ -14,8 +14,8 @@ export const area = (s1: SongData, s2: SongData) => {
 	return (1 - absScore) * (1 - relScore)
 }
 
-const areaBetweenSeries = (p1: number[], p2: number[], key?: string) => {
-	const points = p1.map((k, i) => [i, k]).concat(p2.map((k, i) => [i, k]).reverse()) as Point[]
+const areaBetweenSeries = (s1: number[], s2: number[], key?: string) => {
+	const points = s1.map((k, i) => [i, k]).concat(s2.map((k, i) => [i, k]).reverse()) as Point[]
 
 	const l = points.length
 
@@ -28,9 +28,9 @@ const areaBetweenSeries = (p1: number[], p2: number[], key?: string) => {
 		deltaAreas.push(area)
 	}
 
-	const min = p1.reduce((acc, v) => Math.min(acc, v), Infinity)
+	const min = s1.reduce((acc, v) => Math.min(acc, v), Infinity)
 
-	const area1 = areaFromY(p1, 0)
+	const area1 = areaFromY(s1, 0)
 
 	// key === '__FLAT_Mr Vain - Culture Beat' && console.log(key, min, area1, sum(deltaAreas))
 
