@@ -73,6 +73,7 @@ export const LoadedApp = () => {
 					positions: 'positions',
 					'positions (rel.)': 'positionsRelative',
 					'positions (cum.)': 'positionsCumulative',
+					'positions (diff.)': 'positionsDifferential',
 					pressed: 'pressed',
 				},
 			},
@@ -105,10 +106,11 @@ export const LoadedApp = () => {
 				key.includes('__SOLUTION') && !!selectedDataSet && selectedDataSet.key !== key
 			// @ts-ignore
 			attempt[visualize].forEach((k, i) => {
-				_data[i] = Object.assign({}, _data[i], {
-					// @ts-ignore
-					[attempt.key]: isSolAndSelected ? k - selectedDataSet[visualize][i] : k,
-				})
+				if (i > 0)
+					_data[i - 1] = Object.assign({}, _data[i - 1], {
+						// @ts-ignore
+						[attempt.key]: isSolAndSelected ? k - selectedDataSet[visualize][i] : k,
+					})
 			})
 		}
 		return { data: _data, series: _series, solutionKey }
@@ -156,7 +158,7 @@ export const LoadedApp = () => {
 									<span
 										style={{
 											color,
-											opacity: !selectedDataKey ? 1 : value === selectedDataKey ? 1 : 0.2,
+											opacity: !selectedDataKey ? 1 : value === selectedDataKey ? 1 : 0.25,
 										}}
 									>
 										{value}
@@ -176,7 +178,7 @@ export const LoadedApp = () => {
 									fill="transparent"
 									stackId={n === selectedDataKey ? 'pv' : undefined}
 									baseLine={800}
-									opacity={!selectedDataKey ? 0.9 : n === selectedDataKey ? 1 : 0.2}
+									opacity={!selectedDataKey ? 0.9 : n === selectedDataKey ? 1 : 0.25}
 									stroke={
 										songData.rate === undefined
 											? '#d2d2d2'

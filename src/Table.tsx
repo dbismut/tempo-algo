@@ -109,18 +109,15 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 		filterSongs: { value: false, label: 'sel. song only' },
 	})
 
-	const selectedSongRef = useRef(selectedSong)
-	selectedSongRef.current = selectedSong
-
 	const _data = useMemo(
 		() =>
 			data.filter((s) => {
 				let filter = !s.key.includes('__SOLUTION')
 				if (hideUnrated) filter &&= s.rate !== undefined
-				if (filterSongs) filter &&= s.song === selectedSongRef.current
+				if (filterSongs) filter &&= s.song === selectedSong
 				return filter
 			}),
-		[data, filterSongs, hideUnrated]
+		[data, filterSongs, hideUnrated, selectedSong]
 	)
 
 	const conclusions = useMemo(() => {

@@ -8,6 +8,13 @@ export function normalize(val: number, min: number, max: number) {
 
 export function transformSongData(id: string, fields: RawAirtableSongData): SongData {
 	const positionsCumulative = JSON.parse(fields.positions)
+	const positionsRelative = positionsCumulative.map((d: number, i: number) =>
+		i === 0 ? d : d - positionsCumulative[i - 1]
+	)
+	const positionsDifferential = positionsRelative.map((d: number, i: number) =>
+		i < 2 ? 1 : d / positionsRelative[i - 1]
+	)
+
 	return {
 		id,
 		song: fields.songname,
@@ -18,10 +25,9 @@ export function transformSongData(id: string, fields: RawAirtableSongData): Song
 		pressedRelative: JSON.parse(fields.durations),
 		pressed: JSON.parse(fields.durations).map((d: number) => d * fields.sequenceDuration),
 		positions: JSON.parse(fields.intervals),
-		positionsRelative: positionsCumulative.map((d: number, i: number) =>
-			i === 0 ? d : d - positionsCumulative[i - 1]
-		),
+		positionsRelative,
 		positionsCumulative,
+		positionsDifferential,
 	}
 }
 

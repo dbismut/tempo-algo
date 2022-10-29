@@ -7,11 +7,14 @@ export const area = (s1: SongData, s2: SongData) => {
 	const p2abs: number[] = s2.positions.slice(1)
 	const p1rel: number[] = s1.positionsRelative.slice(1)
 	const p2rel: number[] = s2.positionsRelative.slice(1)
+	const p1diff: number[] = s1.positionsDifferential.slice(1)
+	const p2diff: number[] = s2.positionsDifferential.slice(1)
 
 	const absScore = areaBetweenSeries(p1abs, p2abs, s2.key)
 	const relScore = areaBetweenSeries(p1rel, p2rel, s2.key)
+	const diffScore = areaBetweenSeries(p1diff, p2diff, s2.key)
 
-	return (1 - absScore) * (1 - relScore)
+	return (1 - absScore) * (1 - relScore) * (1 - diffScore)
 }
 
 const areaBetweenSeries = (s1: number[], s2: number[], key?: string) => {

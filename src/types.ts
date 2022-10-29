@@ -27,6 +27,7 @@ export type SongData = {
 	positions: number[]
 	positionsRelative: number[]
 	positionsCumulative: number[]
+	positionsDifferential: number[]
 	duration: number
 	rate: number
 } & Partial<Record<keyof typeof algos, Algo>>
