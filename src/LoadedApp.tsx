@@ -39,7 +39,7 @@ export const LoadedApp = () => {
 						s[algoName] = {
 							value,
 							delta: s.rate !== undefined ? Math.abs(s.rate - value) / value : undefined,
-							error: (s.rate < 5 && value >= 5) || (s.rate >= 5 && value < 5),
+							error: (s.rate <= 5 && value > 5) || (s.rate > 5 && value <= 5),
 						}
 					})
 				})

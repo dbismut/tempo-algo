@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-table'
 // import * as Tooltip from '@radix-ui/react-tooltip'
 import { useControls } from 'leva'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { COLOR_RATES } from './SongUI'
 import { useStore } from './store'
 import { SongData } from './types'
@@ -52,14 +52,19 @@ const RenderRate = ({
 		? info.column.id === 'rate' || rate === undefined
 			? 'transparent'
 			: error
-			? rate > 5
-				? '#a629ff'
-				: '#e60000'
-			: '#00b30088'
+			? '#e60000AA'
+			: '#00b30044'
 		: COLOR_RATES[Math.max(0, Math.floor(value - 1))]
 
+	const borderClass =
+		info.column.id === 'rate' || rate === undefined || !markErrors || !error
+			? ''
+			: rate > 5
+			? 'border-green'
+			: 'border-red'
+
 	return (
-		<div style={{ background }}>
+		<div className={borderClass} style={{ background }}>
 			{value?.toFixed(2)}
 			{delta !== undefined && <span>{(delta * 100).toFixed(2)}%</span>}
 		</div>
@@ -102,6 +107,7 @@ const columns = (markErrors: boolean) => [
 
 export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?: string }) => {
 	const [sorting, setSorting] = useState<SortingState>([])
+	const selectedDataKey = useStore((s) => s.selectedDataKey)
 
 	const { hideUnrated, markErrors, filterSongs } = useControls('table', {
 		hideUnrated: { value: true, label: 'hide unrated' },
@@ -133,10 +139,10 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 							count: d[algo] ? acc.count + 1 : acc.count,
 							errorWhenRight:
 								// @ts-ignore
-								d[algo]?.error && d.rate >= 5 ? acc.errorWhenRight + 1 : acc.errorWhenRight,
+								d[algo]?.error && d.rate > 5 ? acc.errorWhenRight + 1 : acc.errorWhenRight,
 							errorWhenWrong:
 								// @ts-ignore
-								d[algo]?.error && d.rate < 5 ? acc.errorWhenWrong + 1 : acc.errorWhenWrong,
+								d[algo]?.error && d.rate <= 5 ? acc.errorWhenWrong + 1 : acc.errorWhenWrong,
 						}
 					},
 					{ errorWhenRight: 0, errorWhenWrong: 0, count: 0, sum: 0 }
@@ -194,7 +200,7 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 			<table>
 				<tbody>
 					{table.getRowModel().rows.map((row) => (
-						<tr key={row.id}>
+						<tr key={row.id} className={row.original.key === selectedDataKey ? 'selected' : ''}>
 							{row.getVisibleCells().map((cell) => {
 								return (
 									<td

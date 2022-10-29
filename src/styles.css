@@ -73,7 +73,7 @@ nav {
 }
 
 .table-wrapper table tbody tr {
-  height: 50px;
+  height: 54px;
 }
 
 .table-wrapper tbody tr {
@@ -94,12 +94,24 @@ nav {
   padding-left: 20px;
 }
 
+.table-wrapper table td.figure:has(.border-green) {
+  border: 3px solid #00b300;
+}
+
+.table-wrapper table td.figure:has(.border-red) {
+  border: 3px solid #e60000;
+}
+
 .table-wrapper table td.key, table th.key {
   width: 30%;
 }
 
 .table-wrapper tbody tr:nth-child(even) {
   background-color: #f5f5f5;
+}
+
+.table-wrapper tbody tr.selected {
+  background-color: #ffee0055;
 }
 
 .table-wrapper table td.figure {
@@ -111,7 +123,7 @@ nav {
 
 .table-wrapper table th.figure {
   padding: 0;
-  width: 60px;
+  width: 70px;
   text-align: center;
 }
 
@@ -122,6 +134,7 @@ nav {
   align-items: center;
   justify-content: center;
   gap: 4px;
+  width: 100%;
 }
 
 .table-wrapper table td.figure > div > span {
