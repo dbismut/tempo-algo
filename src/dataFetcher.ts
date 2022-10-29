@@ -5,7 +5,7 @@ import { RawAirtableSongData, SolutionSongData } from './types'
 import { transformSongData } from './utils'
 import { updateSongs, useStore } from './store'
 
-const DEBUG = process.env.DEBUG
+const DEBUG = process.env.REACT_APP_DEBUG
 
 Airtable.configure({
 	endpointUrl: 'https://api.airtable.com',
