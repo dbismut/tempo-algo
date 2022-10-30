@@ -1,4 +1,4 @@
-import { clamp } from 'lodash-es'
+import { clamp, sum } from 'lodash-es'
 import { Point, RawAirtableSongData, SongData } from './types'
 import * as d3 from 'd3'
 
@@ -50,17 +50,25 @@ export function quadrilateralArea(p1: Point, p2: Point, p3: Point, p4: Point) {
 		: Math.abs(d3.polygonArea([p1, p2, p3, p4]))
 }
 
+export const areaBetweenSeries = (s1: number[], s2: number[]) => {
+	const points = s1.map((k, i) => [i, k]).concat(s2.map((k, i) => [i, k]).reverse()) as Point[]
+
+	const l = points.length
+
+	const deltaAreas: number[] = []
+	for (let i = 0; i < l / 2; i++) {
+		const [p1, p2] = points.slice(i, i + 2) as [Point, Point]
+		const [p3, p4] = points.slice(l - i - 2, l - i) as [Point, Point]
+
+		const area = quadrilateralArea(p1, p2, p3, p4)
+		deltaAreas.push(area)
+	}
+
+	return sum(deltaAreas)
+}
+
 export function areaFromY(p: number[], y: number) {
-	return d3.polygonArea(
-		p
-			.map((k, i) => [i, k])
-			.concat(
-				Array(p.length)
-					.fill(0)
-					.map((_, i) => [i, y])
-					.reverse()
-			) as Point[]
-	)
+	return areaBetweenSeries(p, Array(p.length).fill(y))
 }
 
 function getLineEq([x1, y1]: Point, [x2, y2]: Point) {

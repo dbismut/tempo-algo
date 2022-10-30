@@ -9,15 +9,15 @@ export const peaks = (s1: SongData, s2: SongData) => {
 	const p1rel: number[] = s1.positionsRelative.slice(1)
 	const p2rel: number[] = s2.positionsRelative.slice(1)
 
-	const absScore = areaBetweenSeries(p1abs, p2abs, s2.key)
-	const relScore = areaBetweenSeries(p1rel, p2rel, s2.key)
+	const absScore = areaBetweenSeries(p1abs, p2abs, s2)
+	const relScore = areaBetweenSeries(p1rel, p2rel, s2)
 
 	// s2.key === 'ivanbad_94' && console.log(absScore, relScore)
 
 	return Math.max(0, 1 - relScore * 1.4)
 }
 
-const areaBetweenSeries = (s1: number[], s2: number[], key?: string) => {
+const areaBetweenSeries = (s1: number[], s2: number[], s?: SongData) => {
 	const points = s1.map((k, i) => [i, k]).concat(s2.map((k, i) => [i, k]).reverse()) as Point[]
 	const min = s1.reduce((acc, v) => Math.min(acc, v), Infinity)
 

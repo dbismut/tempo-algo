@@ -44,13 +44,6 @@ const areaBetweenSeries = (s1: number[], s2: number[], s?: SongData) => {
 		}
 	}
 
-	s?.song === 'Wizard of Oz' &&
-		console.log(
-			s.key,
-			deltaAreas,
-			sumBy(deltaAreas, 'error'),
-			sumBy(deltaAreas, 'error') / s1.length
-		)
 	// key === '__FLAT_Mr Vain - Culture Beat' && console.log(key, min, area1, sum(deltaAreas))
 
 	return sumBy(deltaAreas, 'error') / s1.length

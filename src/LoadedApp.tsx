@@ -65,9 +65,10 @@ export const LoadedApp = () => {
 		[results, selectedDataKey, songName]
 	)
 
-	const { visualize, curve, filter } = useControls(
+	const { visualize, showExtras, curve, filter } = useControls(
 		{
 			curve: { options: ['monotone', 'linear', 'step'] },
+			showExtras: { value: false, label: 'show extras' },
 			visualize: {
 				options: {
 					positions: 'positions',
@@ -83,10 +84,16 @@ export const LoadedApp = () => {
 		[selectedDataKey]
 	)
 
-	const { data, series, solutionKey } = useMemo(() => {
-		const _data: Record<string, number>[] = []
-		const _series: string[] = []
-		let solutionKey
+	const solutionKey = useMemo(() => {
+		return Object.keys(groupedResults[songName]).find((n) => n.indexOf('__SOLUTION') > -1)
+	}, [groupedResults, songName])
+
+	const { data, series, extras } = useMemo(() => {
+		const data: Record<string, number>[] = []
+		const extras: string[] = []
+		const series: string[] = []
+		// @ts-ignore
+		const solutionSet: SongData = groupedResults[songName][solutionKey]
 
 		for (const key in groupedResults[songName]) {
 			const attempt = groupedResults[songName][key]
@@ -100,21 +107,34 @@ export const LoadedApp = () => {
 				case 'not rated':
 					if (attempt.rate !== undefined) continue
 			}
-			if (key.includes('__SOLUTION')) solutionKey = key
-			else _series.push(key)
+			if (key !== solutionKey) {
+				series.push(key)
+				solutionKey && extras.push(key)
+			}
 			const isSolAndSelected =
-				key.includes('__SOLUTION') && !!selectedDataSet && selectedDataSet.key !== key
+				key === solutionKey && !!selectedDataSet && selectedDataSet.key !== key
 			// @ts-ignore
 			attempt[visualize].forEach((k, i) => {
 				if (i > 0)
-					_data[i - 1] = Object.assign({}, _data[i - 1], {
-						// @ts-ignore
-						[attempt.key]: isSolAndSelected ? k - selectedDataSet[visualize][i] : k,
-					})
+					data[i - 1] = Object.assign(
+						{},
+						data[i - 1],
+						{
+							// @ts-ignore
+							[key]: isSolAndSelected ? k - selectedDataSet[visualize][i] : k,
+						},
+						solutionSet && {
+							[`__EXTRA_${key}`]: Math.abs(
+								// @ts-ignore
+								1 / Math.log(Math.abs(solutionSet[visualize][i] - k))
+							),
+						}
+					)
 			})
 		}
-		return { data: _data, series: _series, solutionKey }
-	}, [groupedResults, songName, visualize, filter, selectedDataSet])
+
+		return { data, series, extras }
+	}, [groupedResults, songName, visualize, filter, selectedDataSet, solutionKey])
 
 	return (
 		<>
@@ -151,8 +171,9 @@ export const LoadedApp = () => {
 						<Legend
 							onClick={({ dataKey }) => setSelectedDataKey(dataKey)}
 							formatter={(value, entry) => {
-								const { color } = entry
 								const songData = groupedResults[songName][value]
+								if (!songData) return
+								const { color } = entry
 
 								return (
 									<span
@@ -189,17 +210,54 @@ export const LoadedApp = () => {
 							)
 						})}
 						{solutionKey && (
-							<Area
-								type={curve as CurveType}
-								dataKey={solutionKey}
-								stroke="#008330"
-								fill={
-									selectedDataKey && selectedDataKey !== solutionKey ? '#e1d200ba' : 'transparent'
-								}
-								stackId="pv"
-								opacity={selectedDataKey && selectedDataKey !== solutionKey ? 0.5 : 0.8}
-								strokeWidth={2}
-							/>
+							<>
+								<Area
+									type={curve as CurveType}
+									dataKey={solutionKey}
+									stroke="#000"
+									fill={
+										selectedDataKey && selectedDataKey !== solutionKey ? '#e1d200ba' : 'transparent'
+									}
+									stackId="pv"
+									opacity={selectedDataKey && selectedDataKey !== solutionKey ? 0.6 : 0.8}
+									strokeWidth={2}
+								/>
+								{!showExtras && (
+									<Area
+										type={curve as CurveType}
+										dataKey={solutionKey}
+										stroke="blue"
+										fill="#F0F"
+										legendType="none"
+										opacity={0.8}
+										strokeWidth={2}
+									/>
+								)}
+
+								{solutionKey && showExtras && (
+									<>
+										{extras.map((n) => (
+											<Area
+												key={`__EXTRA_${n}`}
+												dataKey={`__EXTRA_${n}`}
+												legendType="none"
+												opacity={0}
+											/>
+										))}
+										{selectedDataKey && (
+											<Area
+												type={curve as CurveType}
+												dataKey={`__EXTRA_${selectedDataKey}`}
+												stroke="#F0F"
+												fill="#F00FF033"
+												legendType="none"
+												opacity={0.8}
+												strokeWidth={2}
+											/>
+										)}
+									</>
+								)}
+							</>
 						)}
 					</AreaChart>
 				</div>
