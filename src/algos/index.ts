@@ -1,6 +1,6 @@
 export * from './ivan'
 export * from './area'
-export * from './dist'
+export * from './ks'
 export * from './min'
 export * from './scale'
 export * from './peaks'

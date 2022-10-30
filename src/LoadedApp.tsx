@@ -222,7 +222,7 @@ export const LoadedApp = () => {
 									opacity={selectedDataKey && selectedDataKey !== solutionKey ? 0.6 : 0.8}
 									strokeWidth={2}
 								/>
-								{!showExtras && (
+								{!showExtras && selectedDataKey && (
 									<Area
 										type={curve as CurveType}
 										dataKey={solutionKey}

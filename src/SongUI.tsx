@@ -1,4 +1,4 @@
-import { button, useControls } from 'leva'
+import { button, folder, useControls } from 'leva'
 import { useEffect } from 'react'
 import { useSetSongRate } from './dataFetcher'
 import { SongData } from './types'
@@ -29,8 +29,11 @@ export const SongUI = ({ dataSet }: Props) => {
 	const algosInputs = Object.keys(algos).reduce(
 		(acc, algo) =>
 			Object.assign(acc, {
-				// @ts-ignore
-				[algo]: { value: dataSet[algo]?.value ?? -1, disabled: true, order: 2 },
+				[algo]: {
+					// @ts-ignore
+					value: dataSet[algo]?.value ?? -1,
+					disabled: true,
+				},
 			}),
 		{}
 	)
@@ -48,11 +51,10 @@ export const SongUI = ({ dataSet }: Props) => {
 				step: 0.5,
 				hint: '0 is not rated',
 				disabled: loading,
-				order: 1,
 				render: () => !dataSet.key.includes('__SOLUTION') && !dataSet.key.includes('__FLAT'),
 				onEditEnd: (v) => setSongRate(v),
 			},
-			...algosInputs,
+			algos: folder(algosInputs, { collapsed: true, order: 1 }),
 		}),
 		[dataSet, playing, loading]
 	)
