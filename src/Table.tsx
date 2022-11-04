@@ -163,13 +163,31 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 		getSortedRowModel: getSortedRowModel(),
 	})
 
+	
+	const allColumns = table.getAllColumns();
+	const allRows = table.getRowModel();
+	// @ts-ignore
+	const humanRates = allRows.rows.map(row => parseFloat(row._getAllCellsByColumnId()['rate'].getValue()));
+	const otherColumnIds = ['key', 'song', 'positions', 'rate'];
+	const algoRates = allColumns.map((column, i) => {
+		if(otherColumnIds.includes(column.id)) return null;
+
+		let sum = 0;
+		allRows.rows.forEach((row, j) => {
+			if(typeof row._getAllCellsByColumnId()[column.id].getValue() != 'undefined' && typeof humanRates[j] != 'undefined')
+				// @ts-ignore
+				sum += Math.abs(parseFloat(row._getAllCellsByColumnId()[column.id].getValue()) - humanRates[j]);
+		})
+		return Math.round((1 - sum / (humanRates.length * 10)) * 1000) / 10;
+	})
+
 	return (
 		<div className="table-wrapper">
 			<table className="sticky">
 				<thead>
 					{table.getHeaderGroups().map((headerGroup) => (
 						<tr key={headerGroup.id}>
-							{headerGroup.headers.map((header) => (
+							{headerGroup.headers.map((header, i) => (
 								<th
 									key={header.id}
 									className={header.column.columnDef.meta?.className}
@@ -191,6 +209,7 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 											}[header.column.getIsSorted() as string] ?? null}
 										</div>
 									)}
+									{algoRates[i] == null ? null : (<div style={{fontSize:'10px', opacity:'.7'}}>{algoRates[i]} %</div>)}
 								</th>
 							))}
 						</tr>
