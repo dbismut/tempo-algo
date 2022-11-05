@@ -152,7 +152,7 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 
 		Object.keys(algos).forEach((algo) => {
 			Object.assign(_conclusions, {
-				[algo]: data.reduce(
+				[algo]: _data.reduce(
 					(acc, s) => {
 						return {
 							// @ts-ignore
@@ -181,7 +181,7 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 			})
 		})
 		return _conclusions
-	}, [data])
+	}, [_data])
 
 	const table = useReactTable({
 		data: _data,
