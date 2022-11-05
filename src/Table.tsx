@@ -109,8 +109,11 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 	const [sorting, setSorting] = useState<SortingState>([])
 	const selectedDataKey = useStore((s) => s.selectedDataKey)
 
-	const { hideUnrated, markErrors, filterSongs } = useControls('table', {
-		hideUnrated: { value: true, label: 'hide unrated' },
+	const { filterRated, markErrors, filterSongs } = useControls('table', {
+		filterRated: {
+			options: { 'show rated only': 'rated', 'show unrated only': 'unrated', 'show all': 'all' },
+			label: 'filter rated',
+		},
 		markErrors: { value: false, hint: 'highlight differences with rate', label: 'mark errors' },
 		filterSongs: { value: false, label: 'sel. song only' },
 	})
@@ -119,11 +122,18 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 		() =>
 			data.filter((s) => {
 				let filter = !s.key.includes('__SOLUTION')
-				if (hideUnrated) filter &&= s.rate !== undefined
+				switch (filterRated) {
+					case 'rated':
+						filter &&= s.rate !== undefined
+						break
+					case 'unrated':
+						filter &&= s.rate === undefined
+						break
+				}
 				if (filterSongs) filter &&= s.song === selectedSong
 				return filter
 			}),
-		[data, filterSongs, hideUnrated, selectedSong]
+		[data, filterSongs, filterRated, selectedSong]
 	)
 
 	const conclusions = useMemo(() => {
@@ -163,22 +173,28 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 		getSortedRowModel: getSortedRowModel(),
 	})
 
-	
-	const allColumns = table.getAllColumns();
-	const allRows = table.getRowModel();
-	// @ts-ignore
-	const humanRates = allRows.rows.map(row => parseFloat(row._getAllCellsByColumnId()['rate'].getValue()));
-	const otherColumnIds = ['key', 'song', 'positions', 'rate'];
+	const allColumns = table.getAllColumns()
+	const allRows = table.getRowModel()
+	const humanRates = allRows.rows.map((row) =>
+		// @ts-ignore
+		parseFloat(row._getAllCellsByColumnId()['rate'].getValue())
+	)
+	const otherColumnIds = ['key', 'song', 'positions', 'rate']
 	const algoRates = allColumns.map((column, i) => {
-		if(otherColumnIds.includes(column.id)) return null;
+		if (otherColumnIds.includes(column.id)) return null
 
-		let sum = 0;
+		let sum = 0
 		allRows.rows.forEach((row, j) => {
-			if(typeof row._getAllCellsByColumnId()[column.id].getValue() != 'undefined' && typeof humanRates[j] != 'undefined')
-				// @ts-ignore
-				sum += Math.abs(parseFloat(row._getAllCellsByColumnId()[column.id].getValue()) - humanRates[j]);
+			if (
+				typeof row._getAllCellsByColumnId()[column.id].getValue() != 'undefined' &&
+				typeof humanRates[j] != 'undefined'
+			)
+				sum += Math.abs(
+					// @ts-ignore
+					parseFloat(row._getAllCellsByColumnId()[column.id].getValue()) - humanRates[j]
+				)
 		})
-		return Math.round((1 - sum / (humanRates.length * 10)) * 1000) / 10;
+		return Math.round((1 - sum / (humanRates.length * 10)) * 1000) / 10
 	})
 
 	return (
@@ -209,7 +225,9 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 											}[header.column.getIsSorted() as string] ?? null}
 										</div>
 									)}
-									{algoRates[i] == null ? null : (<div style={{fontSize:'10px', opacity:'.7'}}>{algoRates[i]} %</div>)}
+									{algoRates[i] == null ? null : (
+										<div style={{ fontSize: '10px', opacity: '.7' }}>{algoRates[i]} %</div>
+									)}
 								</th>
 							))}
 						</tr>
