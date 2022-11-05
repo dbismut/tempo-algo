@@ -16,7 +16,17 @@ import { useStore } from './store'
 import { SongData } from './types'
 import * as algos from './algos'
 
-type Conclusion = { sum: number; errorWhenRight: number; errorWhenWrong: number; count: number }
+type Conclusion = {
+	delta: number
+	sum: number
+	errorWhenRight: number
+	errorWhenWrong: number
+	count: number
+	countDelta: number
+}
+
+const calculateDeltaFromConclusion = (concl: Conclusion) =>
+	Math.round((1 - concl.delta / (concl.countDelta * 10)) * 100)
 
 const stringify = (concl: Conclusion) => `avg score: ${(concl.sum / concl.count).toFixed(2)}
 err. total: ${concl.errorWhenRight + concl.errorWhenWrong}
@@ -26,6 +36,7 @@ err. when wrong: ${concl.errorWhenWrong}`
 const columnHelper = createColumnHelper<SongData>()
 
 declare module '@tanstack/table-core' {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	interface ColumnMeta<TData extends RowData, TValue> {
 		className?: string
 		isAlgo?: boolean
@@ -138,24 +149,34 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 
 	const conclusions = useMemo(() => {
 		const _conclusions = {} as Record<keyof typeof algos, Conclusion>
+
 		Object.keys(algos).forEach((algo) => {
 			Object.assign(_conclusions, {
 				[algo]: data.reduce(
-					(acc, d) => {
+					(acc, s) => {
 						return {
 							// @ts-ignore
-							sum: acc.sum + d[algo]?.value || 0,
+							sum: acc.sum + s[algo]?.value || 0,
 							// @ts-ignore
-							count: d[algo] ? acc.count + 1 : acc.count,
+							count: s[algo] ? acc.count + 1 : acc.count,
+							// @ts-ignore
+							delta: Number.isFinite(s[algo]?.value + s.rate)
+								? // @ts-ignore
+								  acc.delta + Math.abs(s.rate - s[algo].value)
+								: acc.delta,
+							// @ts-ignore
+							countDelta: Number.isFinite(s[algo]?.value + s.rate)
+								? acc.countDelta + 1
+								: acc.countDelta,
 							errorWhenRight:
 								// @ts-ignore
-								d[algo]?.error && d.rate > 5 ? acc.errorWhenRight + 1 : acc.errorWhenRight,
+								s[algo]?.error && s.rate > 5 ? acc.errorWhenRight + 1 : acc.errorWhenRight,
 							errorWhenWrong:
 								// @ts-ignore
-								d[algo]?.error && d.rate <= 5 ? acc.errorWhenWrong + 1 : acc.errorWhenWrong,
+								s[algo]?.error && s.rate <= 5 ? acc.errorWhenWrong + 1 : acc.errorWhenWrong,
 						}
 					},
-					{ errorWhenRight: 0, errorWhenWrong: 0, count: 0, sum: 0 }
+					{ delta: 0, errorWhenRight: 0, errorWhenWrong: 0, count: 0, countDelta: 0, sum: 0 }
 				),
 			})
 		})
@@ -173,63 +194,38 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 		getSortedRowModel: getSortedRowModel(),
 	})
 
-	const allColumns = table.getAllColumns()
-	const allRows = table.getRowModel()
-	const humanRates = allRows.rows.map((row) =>
-		// @ts-ignore
-		parseFloat(row._getAllCellsByColumnId()['rate'].getValue())
-	)
-	const otherColumnIds = ['key', 'song', 'positions', 'rate']
-	const algoRates = allColumns.map((column, i) => {
-		if (otherColumnIds.includes(column.id)) return null
-
-		let sum = 0
-		allRows.rows.forEach((row, j) => {
-			if (
-				typeof row._getAllCellsByColumnId()[column.id].getValue() != 'undefined' &&
-				typeof humanRates[j] != 'undefined'
-			)
-				sum += Math.abs(
-					// @ts-ignore
-					parseFloat(row._getAllCellsByColumnId()[column.id].getValue()) - humanRates[j]
-				)
-		})
-		return Math.round((1 - sum / (humanRates.length * 10)) * 1000) / 10
-	})
-
 	return (
 		<div className="table-wrapper">
 			<table className="sticky">
 				<thead>
 					{table.getHeaderGroups().map((headerGroup) => (
 						<tr key={headerGroup.id}>
-							{headerGroup.headers.map((header, i) => (
-								<th
-									key={header.id}
-									className={header.column.columnDef.meta?.className}
-									{...(header.column.columnDef.meta?.isAlgo && {
-										title: stringify((conclusions as any)[header.id]),
-									})}
-								>
-									{header.isPlaceholder ? null : (
-										<div
-											{...{
-												className: header.column.getCanSort() ? 'cursor-pointer select-none' : '',
-												onClick: header.column.getToggleSortingHandler(),
-											}}
-										>
-											{flexRender(header.column.columnDef.header, header.getContext())}
-											{{
-												asc: ' 🔼',
-												desc: ' 🔽',
-											}[header.column.getIsSorted() as string] ?? null}
-										</div>
-									)}
-									{algoRates[i] == null ? null : (
-										<div style={{ fontSize: '10px', opacity: '.7' }}>{algoRates[i]} %</div>
-									)}
-								</th>
-							))}
+							{headerGroup.headers.map((header, i) => {
+								const concl: Conclusion | null = header.column.columnDef.meta?.isAlgo
+									? (conclusions as any)[header.id]
+									: null
+								return (
+									<th
+										key={header.id}
+										className={header.column.columnDef.meta?.className}
+										title={concl ? stringify(concl) : undefined}
+									>
+										{header.isPlaceholder ? null : (
+											<div
+												className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
+												onClick={header.column.getToggleSortingHandler()}
+											>
+												{flexRender(header.column.columnDef.header, header.getContext())}
+												{{
+													asc: ' 🔼',
+													desc: ' 🔽',
+												}[header.column.getIsSorted() as string] ?? null}
+												{concl && <span>{calculateDeltaFromConclusion(concl)} %</span>}
+											</div>
+										)}
+									</th>
+								)
+							})}
 						</tr>
 					))}
 				</thead>
