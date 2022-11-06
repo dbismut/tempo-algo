@@ -52,16 +52,16 @@ const RenderRate = ({
 		? info.column.id === 'rate' || rate === undefined
 			? 'transparent'
 			: error
-			? '#e60000AA'
-			: '#00b30044'
+				? '#e60000AA'
+				: '#00b30044'
 		: COLOR_RATES[Math.max(0, Math.floor(value - 1))]
 
 	const borderClass =
 		info.column.id === 'rate' || rate === undefined || !markErrors || !error
 			? ''
 			: rate > 5
-			? 'border-green'
-			: 'border-red'
+				? 'border-green'
+				: 'border-red'
 
 	return (
 		<div className={borderClass} style={{ background }}>
@@ -163,18 +163,18 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 		getSortedRowModel: getSortedRowModel(),
 	})
 
-	
+
 	const allColumns = table.getAllColumns();
 	const allRows = table.getRowModel();
 	// @ts-ignore
 	const humanRates = allRows.rows.map(row => parseFloat(row._getAllCellsByColumnId()['rate'].getValue()));
 	const otherColumnIds = ['key', 'song', 'positions', 'rate'];
 	const algoRates = allColumns.map((column, i) => {
-		if(otherColumnIds.includes(column.id)) return null;
+		if (otherColumnIds.includes(column.id)) return null;
 
 		let sum = 0;
 		allRows.rows.forEach((row, j) => {
-			if(typeof row._getAllCellsByColumnId()[column.id].getValue() != 'undefined' && typeof humanRates[j] != 'undefined')
+			if (typeof row._getAllCellsByColumnId()[column.id].getValue() != 'undefined' && typeof humanRates[j] != 'undefined')
 				// @ts-ignore
 				sum += Math.abs(parseFloat(row._getAllCellsByColumnId()[column.id].getValue()) - humanRates[j]);
 		})
@@ -209,7 +209,7 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 											}[header.column.getIsSorted() as string] ?? null}
 										</div>
 									)}
-									{algoRates[i] == null ? null : (<div style={{fontSize:'10px', opacity:'.7'}}>{algoRates[i]} %</div>)}
+									{algoRates[i] == null ? null : (<div style={{ fontSize: '10px', opacity: '.7' }}>{algoRates[i]} %</div>)}
 								</th>
 							))}
 						</tr>

@@ -21,11 +21,11 @@ const pow2 = (x: number) => {
 const score1 = (s1: number[], s2: number[], s?: SongData) => {
 	let diff = 0;
 	let max = 0;
-	for(let i = 0;i < s1.length && i < s2.length; i++) {
+	for (let i = 0; i < s1.length && i < s2.length; i++) {
 		diff += pow2((s1[i] - s2[i]) * 100) / 100;
 	}
 
-	for(let i = 0;i < s1.length && i < s2.length; i++) {
+	for (let i = 0; i < s1.length && i < s2.length; i++) {
 		max += s1[i];
 	}
 
@@ -37,8 +37,8 @@ const score1 = (s1: number[], s2: number[], s?: SongData) => {
 const score2 = (s1: number[], s2: number[], s?: SongData) => {
 	let points = 0;
 
-	for(let i = 0;i < s1.length && i < s2.length; i++) {
-		points += Math.abs(s1[i] - s2[i]) * 100 < 20 ? 1 : 0
+	for (let i = 0; i < s1.length && i < s2.length; i++) {
+		points += Math.pow(Math.abs(s1[i] - s2[i]) * 10, 2) < 4 ? 1 : 0
 	}
 
 	return (points / s1.length);
