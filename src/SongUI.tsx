@@ -51,10 +51,11 @@ export const SongUI = ({ dataSet }: Props) => {
 				step: 0.5,
 				hint: '0 is not rated',
 				disabled: loading,
+				order: 1,
 				render: () => !dataSet.key.includes('__SOLUTION') && !dataSet.key.includes('__FLAT'),
 				onEditEnd: (v) => setSongRate(v),
 			},
-			algos: folder(algosInputs, { collapsed: true, order: 1 }),
+			algos: folder(algosInputs, { collapsed: true, order: 2 }),
 		}),
 		[dataSet, playing, loading]
 	)

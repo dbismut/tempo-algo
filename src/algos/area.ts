@@ -13,7 +13,7 @@ export const area = (s1: SongData, s2: SongData) => {
 	const relScore = score(p1rel, p2rel, s2)
 	const diffScore = score(p1diff, p2diff, s2)
 
-	return (1 - absScore) * (1 - relScore) * (1 - diffScore)
+	return (1 - absScore) * (1 - relScore)
 }
 
 const score = (s1: number[], s2: number[], s?: SongData) => {

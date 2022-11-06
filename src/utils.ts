@@ -56,7 +56,7 @@ export const areaBetweenSeries = (s1: number[], s2: number[]) => {
 	const l = points.length
 
 	const deltaAreas: number[] = []
-	for (let i = 0; i < l / 2; i++) {
+	for (let i = 0; i < l / 2 - 1; i++) {
 		const [p1, p2] = points.slice(i, i + 2) as [Point, Point]
 		const [p3, p4] = points.slice(l - i - 2, l - i) as [Point, Point]
 
@@ -69,6 +69,15 @@ export const areaBetweenSeries = (s1: number[], s2: number[]) => {
 
 export function areaFromY(p: number[], y: number) {
 	return areaBetweenSeries(p, Array(p.length).fill(y))
+}
+
+export const seriesLength = (s1: number[]) => {
+	let d = 0
+	for (let i = 1; i < s1.length; i++) {
+		const [p1, p2] = s1.slice(i - 1, i + 1)
+		d += Math.sqrt(Math.abs(Math.pow(p1 - p2, 2) + 1))
+	}
+	return d
 }
 
 function getLineEq([x1, y1]: Point, [x2, y2]: Point) {
