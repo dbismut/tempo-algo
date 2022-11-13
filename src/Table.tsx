@@ -26,7 +26,7 @@ type Conclusion = {
 }
 
 const calculateDeltaFromConclusion = (concl: Conclusion) =>
-	Math.round((1 - concl.delta / (concl.countDelta * 10)) * 100)
+	Math.round((1 - concl.delta / (concl.countDelta * 10)) * 1000) / 10
 
 const stringify = (concl: Conclusion) => `avg score: ${(concl.sum / concl.count).toFixed(2)}
 err. total: ${concl.errorWhenRight + concl.errorWhenWrong}
@@ -63,16 +63,16 @@ const RenderRate = ({
 		? info.column.id === 'rate' || rate === undefined
 			? 'transparent'
 			: error
-			? '#e60000AA'
-			: '#00b30044'
+				? '#e60000AA'
+				: '#00b30044'
 		: COLOR_RATES[Math.max(0, Math.floor(value - 1))]
 
 	const borderClass =
 		info.column.id === 'rate' || rate === undefined || !markErrors || !error
 			? ''
 			: rate > 5
-			? 'border-green'
-			: 'border-red'
+				? 'border-green'
+				: 'border-red'
 
 	return (
 		<div className={borderClass} style={{ background }}>
@@ -154,6 +154,16 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 			Object.assign(_conclusions, {
 				[algo]: _data.reduce(
 					(acc, s) => {
+						if (s.user == 'Flat') {
+							return {
+								sum: acc.sum,
+								count: acc.count,
+								delta: acc.delta,
+								countDelta: acc.countDelta,
+								errorWhenRight: acc.errorWhenRight,
+								errorWhenWrong: acc.errorWhenWrong,
+							}
+						}
 						return {
 							// @ts-ignore
 							sum: acc.sum + s[algo]?.value || 0,
@@ -162,7 +172,7 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 							// @ts-ignore
 							delta: Number.isFinite(s[algo]?.value + s.rate)
 								? // @ts-ignore
-								  acc.delta + Math.abs(s.rate - s[algo].value)
+								acc.delta + Math.abs(s.rate - s[algo].value)
 								: acc.delta,
 							// @ts-ignore
 							countDelta: Number.isFinite(s[algo]?.value + s.rate)
