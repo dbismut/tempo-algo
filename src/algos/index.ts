@@ -1,4 +1,5 @@
 export * from './ivan'
+export * from './ivan2'
 export * from './area'
 export * from './ks'
 export * from './min'

@@ -63,16 +63,16 @@ const RenderRate = ({
 		? info.column.id === 'rate' || rate === undefined
 			? 'transparent'
 			: error
-				? '#e60000AA'
-				: '#00b30044'
+			? '#e60000AA'
+			: '#00b30044'
 		: COLOR_RATES[Math.max(0, Math.floor(value - 1))]
 
 	const borderClass =
 		info.column.id === 'rate' || rate === undefined || !markErrors || !error
 			? ''
 			: rate > 5
-				? 'border-green'
-				: 'border-red'
+			? 'border-green'
+			: 'border-red'
 
 	return (
 		<div className={borderClass} style={{ background }}>
@@ -154,7 +154,7 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 			Object.assign(_conclusions, {
 				[algo]: _data.reduce(
 					(acc, s) => {
-						if (s.user == 'Flat') {
+						if (s.user === 'Flat') {
 							return {
 								sum: acc.sum,
 								count: acc.count,
@@ -172,7 +172,7 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 							// @ts-ignore
 							delta: Number.isFinite(s[algo]?.value + s.rate)
 								? // @ts-ignore
-								acc.delta + Math.abs(s.rate - s[algo].value)
+								  acc.delta + Math.abs(s.rate - s[algo].value)
 								: acc.delta,
 							// @ts-ignore
 							countDelta: Number.isFinite(s[algo]?.value + s.rate)
