@@ -120,19 +120,24 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 	const [sorting, setSorting] = useState<SortingState>([])
 	const selectedDataKey = useStore((s) => s.selectedDataKey)
 
-	const { filterRated, markErrors, filterSongs } = useControls('table', {
+	const { filterRated, markErrors, filterSongs, filterFlats } = useControls('table', {
 		filterRated: {
 			options: { 'show rated only': 'rated', 'show unrated only': 'unrated', 'show all': 'all' },
 			label: 'filter rated',
 		},
 		markErrors: { value: false, hint: 'highlight differences with rate', label: 'mark errors' },
 		filterSongs: { value: false, label: 'sel. song only' },
+		filterFlats: {
+			value: true,
+			label: 'filter flats',
+			hint: 'remove automated flat songs from ratings',
+		},
 	})
 
 	const _data = useMemo(
 		() =>
 			data.filter((s) => {
-				let filter = !s.key.includes('__SOLUTION')
+				let filter = !s.key.startsWith('__SOLUTION')
 				switch (filterRated) {
 					case 'rated':
 						filter &&= s.rate !== undefined
@@ -141,10 +146,11 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 						filter &&= s.rate === undefined
 						break
 				}
+				if (filterFlats) filter &&= !s.key.startsWith('__FLAT')
 				if (filterSongs) filter &&= s.song === selectedSong
 				return filter
 			}),
-		[data, filterSongs, filterRated, selectedSong]
+		[data, filterSongs, filterRated, selectedSong, filterFlats]
 	)
 
 	const conclusions = useMemo(() => {
@@ -154,16 +160,6 @@ export const Table = ({ data, selectedSong }: { data: SongData[]; selectedSong?:
 			Object.assign(_conclusions, {
 				[algo]: _data.reduce(
 					(acc, s) => {
-						if (s.user === 'Flat') {
-							return {
-								sum: acc.sum,
-								count: acc.count,
-								delta: acc.delta,
-								countDelta: acc.countDelta,
-								errorWhenRight: acc.errorWhenRight,
-								errorWhenWrong: acc.errorWhenWrong,
-							}
-						}
 						return {
 							// @ts-ignore
 							sum: acc.sum + s[algo]?.value || 0,
