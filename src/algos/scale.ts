@@ -1,3 +1,4 @@
+import { max, min } from 'lodash-es'
 import { SongData } from '../types'
 import { areaBetweenSeries, areaFromY } from '../utils'
 
@@ -12,15 +13,14 @@ export const scale = (s1: SongData, s2: SongData) => {
 
 	// s2.key === 'ivanbad_94' && console.log(absScore, relScore)
 
-	return Math.max(0, 1 - relScore) * Math.max(0, 1 - absScore)
+	return Math.max(0, 1 - relScore * 2.5)
 }
 
 const score = (s1: number[], s2: number[], s?: SongData) => {
-	const min1 = s1.reduce((acc, v) => Math.min(acc, v), Infinity)
-	const max1 = s1.reduce((acc, v) => Math.max(acc, v), 0)
-
-	const min2 = s2.reduce((acc, v) => Math.min(acc, v), Infinity)
-	const max2 = s2.reduce((acc, v) => Math.max(acc, v), 0)
+	const min1 = min(s1)!
+	const max1 = max(s1)!
+	const min2 = min(s2)!
+	const max2 = max(s2)!
 
 	const s2h = s2.map((k) =>
 		max2 === min2 ? (max1 - min1) / 2 : ((k - min2) / (max2 - min2)) * (max1 - min1) + min1

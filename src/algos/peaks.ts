@@ -14,7 +14,7 @@ export const peaks = (s1: SongData, s2: SongData) => {
 
 	// s2.key === 'ivanbad_94' && console.log(absScore, relScore)
 
-	return Math.max(0, 1 - relScore * 1.4)
+	return Math.max(0, 1 - relScore * 2.5)
 }
 
 const areaBetweenSeries = (s1: number[], s2: number[], s?: SongData) => {

@@ -28,6 +28,8 @@ export const updateSongs = (updatedSongs: SongData[]) => {
 }
 
 export const setSelectedDataKey = (selectedDataKey: string | null) =>
-	useStore.setState({ selectedDataKey })
+	useStore.setState((state) =>
+		state.selectedDataKey === selectedDataKey ? { selectedDataKey: null } : { selectedDataKey }
+	)
 
 export const setSelectedSong = (selectedSong: string) => useStore.setState({ selectedSong })
